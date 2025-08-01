@@ -1,10 +1,19 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Eye, Building } from "lucide-react";
+import growthImage from "@/assets/growth-mountains.jpg";
 
 const About = () => {
   return (
-    <section id="about" className="py-20 bg-finance-light">
-      <div className="container mx-auto px-4">
+    <section id="about" className="py-20 bg-finance-light relative overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 opacity-5">
+        <img 
+          src={growthImage} 
+          alt="Growth and prosperity" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-finance-navy mb-4">
             About LA Financial Services

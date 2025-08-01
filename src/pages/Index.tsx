@@ -4,6 +4,7 @@ import About from "@/components/About";
 import Services from "@/components/Services";
 import Values from "@/components/Values";
 import Documentation from "@/components/Documentation";
+import ApplicationForm from "@/components/ApplicationForm";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -15,6 +16,7 @@ const Index = () => {
       <Services />
       <Values />
       <Documentation />
+      <ApplicationForm />
       <Footer />
     </div>
   );

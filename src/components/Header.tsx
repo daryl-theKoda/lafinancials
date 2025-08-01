@@ -49,7 +49,11 @@ const Header = () => {
             >
               Documentation
             </button>
-            <Button variant="finance" size="sm">
+            <Button 
+              variant="finance" 
+              size="sm"
+              onClick={() => scrollToSection('apply')}
+            >
               Apply Now
             </Button>
           </nav>
@@ -91,7 +95,12 @@ const Header = () => {
               >
                 Documentation
               </button>
-              <Button variant="finance" size="sm" className="w-full">
+              <Button 
+                variant="finance" 
+                size="sm" 
+                className="w-full"
+                onClick={() => scrollToSection('apply')}
+              >
                 Apply Now
               </Button>
             </nav>
