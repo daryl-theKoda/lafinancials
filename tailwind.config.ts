@@ -52,6 +52,15 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				finance: {
+					blue: 'hsl(var(--finance-blue))',
+					'blue-light': 'hsl(var(--finance-blue-light))',
+					green: 'hsl(var(--finance-green))',
+					'green-light': 'hsl(var(--finance-green-light))',
+					navy: 'hsl(var(--finance-navy))',
+					gray: 'hsl(var(--finance-gray))',
+					light: 'hsl(var(--finance-light))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -67,6 +76,16 @@ export default {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-accent': 'var(--gradient-accent)',
+				'gradient-hero': 'var(--gradient-hero)'
+			},
+			boxShadow: {
+				'soft': 'var(--shadow-soft)',
+				'medium': 'var(--shadow-medium)',
+				'large': 'var(--shadow-large)'
 			},
 			keyframes: {
 				'accordion-down': {
