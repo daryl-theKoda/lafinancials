@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, TrendingUp, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   const scrollToServices = () => {
@@ -31,11 +32,13 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button variant="accent" size="xl">
-              Apply for a Loan
-              <ArrowRight className="ml-2" size={20} />
-            </Button>
-            <Button variant="outline" size="xl" className="border-white text-white hover:bg-white hover:text-finance-navy">
+            <Link to="/apply">
+              <Button variant="accent" size="xl">
+                Apply for a Loan
+                <ArrowRight className="ml-2" size={20} />
+              </Button>
+            </Link>
+            <Button variant="outline" size="xl" className="border-white text-white hover:bg-white hover:text-finance-navy" onClick={scrollToServices}>
               Learn More
             </Button>
           </div>

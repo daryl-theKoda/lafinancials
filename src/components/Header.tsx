@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,13 +50,16 @@ const Header = () => {
             >
               Documentation
             </button>
-            <Button 
-              variant="finance" 
-              size="sm"
-              onClick={() => scrollToSection('apply')}
-            >
-              Apply Now
-            </Button>
+            <Link to="/auth">
+              <Button variant="outline" size="sm">
+                Sign In
+              </Button>
+            </Link>
+            <Link to="/apply">
+              <Button variant="hero" size="sm">
+                Apply Now
+              </Button>
+            </Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -95,14 +99,16 @@ const Header = () => {
               >
                 Documentation
               </button>
-              <Button 
-                variant="finance" 
-                size="sm" 
-                className="w-full"
-                onClick={() => scrollToSection('apply')}
-              >
-                Apply Now
-              </Button>
+              <Link to="/auth" className="w-full">
+                <Button variant="outline" size="sm" className="w-full">
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/apply" className="w-full">
+                <Button variant="hero" size="sm" className="w-full">
+                  Apply Now
+                </Button>
+              </Link>
             </nav>
           </div>
         )}
