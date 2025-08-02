@@ -14,7 +14,158 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      application_documents: {
+        Row: {
+          application_id: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          uploaded_at: string | null
+        }
+        Insert: {
+          application_id: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          uploaded_at?: string | null
+        }
+        Update: {
+          application_id?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "loan_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loan_applications: {
+        Row: {
+          address: string
+          admin_notes: string | null
+          business_description: string | null
+          business_name: string | null
+          created_at: string | null
+          crop_type: string | null
+          email: string
+          emergency_description: string | null
+          emergency_type: string | null
+          employer_name: string | null
+          employment_status: string
+          farm_size: string | null
+          full_name: string
+          id: string
+          loan_amount: number
+          loan_type: string
+          monthly_income: number
+          phone: string
+          reviewed_at: string | null
+          school_name: string | null
+          status: string | null
+          student_name: string | null
+          submitted_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address: string
+          admin_notes?: string | null
+          business_description?: string | null
+          business_name?: string | null
+          created_at?: string | null
+          crop_type?: string | null
+          email: string
+          emergency_description?: string | null
+          emergency_type?: string | null
+          employer_name?: string | null
+          employment_status: string
+          farm_size?: string | null
+          full_name: string
+          id?: string
+          loan_amount: number
+          loan_type: string
+          monthly_income: number
+          phone: string
+          reviewed_at?: string | null
+          school_name?: string | null
+          status?: string | null
+          student_name?: string | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string
+          admin_notes?: string | null
+          business_description?: string | null
+          business_name?: string | null
+          created_at?: string | null
+          crop_type?: string | null
+          email?: string
+          emergency_description?: string | null
+          emergency_type?: string | null
+          employer_name?: string | null
+          employment_status?: string
+          farm_size?: string | null
+          full_name?: string
+          id?: string
+          loan_amount?: number
+          loan_type?: string
+          monthly_income?: number
+          phone?: string
+          reviewed_at?: string | null
+          school_name?: string | null
+          status?: string | null
+          student_name?: string | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
