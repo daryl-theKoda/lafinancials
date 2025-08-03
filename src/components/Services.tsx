@@ -103,8 +103,13 @@ const Services = () => {
                     {service.details}
                   </p>
                   
-                  <Button variant="outline" size="sm" className="w-full group">
-                    Learn More
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full group"
+                    onClick={() => window.location.href = '/apply'}
+                  >
+                    Apply Now
                     <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </CardContent>
@@ -114,7 +119,11 @@ const Services = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="hero" size="lg">
+          <Button 
+            variant="hero" 
+            size="lg"
+            onClick={() => window.location.href = '/apply'}
+          >
             Apply for a Loan Today
             <ArrowRight className="ml-2" size={20} />
           </Button>

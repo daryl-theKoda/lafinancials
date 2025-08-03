@@ -13,7 +13,8 @@ import {
   XCircle, 
   DollarSign,
   Upload,
-  Settings 
+  Settings,
+  User 
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -27,8 +28,18 @@ interface LoanApplication {
   full_name: string;
 }
 
+interface UserProfile {
+  id: string;
+  user_id: string;
+  full_name: string;
+  client_number: string | null;
+  phone: string | null;
+  address: string | null;
+}
+
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -41,7 +52,7 @@ const Dashboard = () => {
         return;
       }
       setUser(session.user);
-      await fetchApplications(session.user.id);
+      await fetchUserData(session.user.id);
     };
 
     checkUser();
@@ -52,29 +63,43 @@ const Dashboard = () => {
         navigate("/auth");
       } else {
         setUser(session.user);
-        fetchApplications(session.user.id);
+        fetchUserData(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const fetchApplications = async (userId: string) => {
+  const fetchUserData = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Fetch user profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error("Profile error:", profileError);
+      } else {
+        setProfile(profileData);
+      }
+
+      // Fetch applications
+      const { data: appData, error: appError } = await supabase
         .from('loan_applications')
         .select('*')
         .eq('user_id', userId)
         .order('submitted_at', { ascending: false });
 
-      if (error) {
+      if (appError) {
         toast.error("Failed to fetch applications");
-        console.error(error);
+        console.error(appError);
       } else {
-        setApplications(data || []);
+        setApplications(appData || []);
       }
     } catch (error) {
-      toast.error("An error occurred while fetching applications");
+      toast.error("An error occurred while fetching data");
     } finally {
       setIsLoading(false);
     }
@@ -150,9 +175,16 @@ const Dashboard = () => {
               </Badge>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-finance-gray">
-                Welcome, {user?.user_metadata?.full_name || user?.email}
-              </span>
+              <div className="text-right">
+                <div className="text-finance-gray text-sm">
+                  Welcome, {profile?.full_name || user?.user_metadata?.full_name || user?.email}
+                </div>
+                {profile?.client_number && (
+                  <div className="text-finance-blue text-xs font-mono">
+                    Client: {profile.client_number}
+                  </div>
+                )}
+              </div>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
@@ -185,9 +217,9 @@ const Dashboard = () => {
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Documents
                 </Button>
-                <Button variant="outline" className="w-full">
-                  <FileText className="w-4 h-4 mr-2" />
-                  View Profile
+                <Button variant="outline" className="w-full" disabled>
+                  <User className="w-4 h-4 mr-2" />
+                  Update Profile
                 </Button>
               </CardContent>
             </Card>

@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Twitter, Linkedin, MessageCircle } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -47,12 +47,17 @@ const Footer = () => {
                 </a>
               </li>
               <li>
+                <a href="#partners" className="text-white/80 hover:text-white transition-colors">
+                  Our Partners
+                </a>
+              </li>
+              <li>
                 <a href="#documentation" className="text-white/80 hover:text-white transition-colors">
                   Documentation
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors">
+                <a href="/apply" className="text-white/80 hover:text-white transition-colors">
                   Apply Now
                 </a>
               </li>
@@ -65,7 +70,7 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-finance-green" />
-                <span className="text-white/80">+263 XX XXX XXXX</span>
+                <span className="text-white/80">+263 77 123 4567</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-finance-green" />
@@ -75,9 +80,18 @@ const Footer = () => {
                 <MapPin className="w-5 h-5 text-finance-green mt-0.5" />
                 <span className="text-white/80">
                   Harare, Zimbabwe<br />
-                  [Address details]
+                  123 Financial District
                 </span>
               </div>
+              <a 
+                href="https://wa.me/263771234567" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-3 text-finance-green hover:text-white transition-colors"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span>WhatsApp Us</span>
+              </a>
             </div>
           </div>
         </div>

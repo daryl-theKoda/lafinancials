@@ -45,6 +45,12 @@ const Header = () => {
               Values
             </button>
             <button 
+              onClick={() => scrollToSection('partners')}
+              className="text-finance-gray hover:text-finance-blue transition-colors"
+            >
+              Partners
+            </button>
+            <button 
               onClick={() => scrollToSection('documentation')}
               className="text-finance-gray hover:text-finance-blue transition-colors"
             >
@@ -92,6 +98,12 @@ const Header = () => {
                 className="text-left text-finance-gray hover:text-finance-blue transition-colors"
               >
                 Values
+              </button>
+              <button 
+                onClick={() => scrollToSection('partners')}
+                className="text-left text-finance-gray hover:text-finance-blue transition-colors"
+              >
+                Partners
               </button>
               <button 
                 onClick={() => scrollToSection('documentation')}
