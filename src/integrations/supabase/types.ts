@@ -136,9 +136,46 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
+          client_number: string | null
           created_at: string | null
           full_name: string
           id: string
@@ -148,6 +185,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          client_number?: string | null
           created_at?: string | null
           full_name: string
           id?: string
@@ -157,6 +195,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          client_number?: string | null
           created_at?: string | null
           full_name?: string
           id?: string
@@ -171,7 +210,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_client_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
