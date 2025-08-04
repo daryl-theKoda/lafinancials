@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_follow_ups: {
+        Row: {
+          application_id: string | null
+          client_id: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          due_date: string
+          follow_up_type: string
+          id: string
+          notes: string | null
+          priority: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          client_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date: string
+          follow_up_type: string
+          id?: string
+          notes?: string | null
+          priority?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          client_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date?: string
+          follow_up_type?: string
+          id?: string
+          notes?: string | null
+          priority?: string | null
+        }
+        Relationships: []
+      }
       application_documents: {
         Row: {
           application_id: string
@@ -132,6 +174,54 @@ export type Database = {
           student_name?: string | null
           submitted_at?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      loan_payments: {
+        Row: {
+          amount_due: number
+          amount_paid: number | null
+          application_id: string
+          created_at: string
+          due_date: string
+          id: string
+          notes: string | null
+          paid_date: string | null
+          payment_method: string | null
+          status: string
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_due: number
+          amount_paid?: number | null
+          application_id: string
+          created_at?: string
+          due_date: string
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          payment_method?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_due?: number
+          amount_paid?: number | null
+          application_id?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          payment_method?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

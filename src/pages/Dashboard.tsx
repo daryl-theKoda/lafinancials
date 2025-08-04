@@ -14,10 +14,14 @@ import {
   DollarSign,
   Upload,
   Settings,
-  User 
+  User,
+  Download,
+  MessageCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
+import LoanPayments from "@/components/LoanPayments";
+import ChatBot from "@/components/ChatBot";
 
 interface LoanApplication {
   id: string;
@@ -42,6 +46,8 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showChatBot, setShowChatBot] = useState(false);
+  const [chatBotMinimized, setChatBotMinimized] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -149,6 +155,27 @@ const Dashboard = () => {
     }
   };
 
+  const downloadApplicationForm = () => {
+    // Create a sample application form PDF content
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(
+      'LAFinServices Loan Application Form\n\n' +
+      'Please fill out this form completely and submit with required documents.\n\n' +
+      '1. Personal Information\n' +
+      '2. Employment/Business Details\n' +
+      '3. Financial Information\n' +
+      '4. Loan Requirements\n' +
+      '5. References\n\n' +
+      'For assistance, contact us at info@lafinservices.com'
+    ));
+    element.setAttribute('download', 'LAFinServices_Application_Form.txt');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    toast.success("Application form downloaded successfully");
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-finance-light to-background flex items-center justify-center">
@@ -217,16 +244,33 @@ const Dashboard = () => {
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Documents
                 </Button>
-                <Button variant="outline" className="w-full" disabled>
-                  <User className="w-4 h-4 mr-2" />
-                  Update Profile
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={downloadApplicationForm}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Form
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => {
+                    setShowChatBot(true);
+                    setChatBotMinimized(false);
+                  }}
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Chat Support
                 </Button>
               </CardContent>
             </Card>
           </div>
 
           {/* Applications List */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Loan Payments */}
+            {user && <LoanPayments userId={user.id} />}
             <Card className="shadow-medium">
               <CardHeader>
                 <CardTitle className="flex items-center text-finance-navy">
@@ -287,6 +331,15 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* ChatBot */}
+      {showChatBot && (
+        <ChatBot
+          isMinimized={chatBotMinimized}
+          onToggleMinimize={() => setChatBotMinimized(!chatBotMinimized)}
+          onClose={() => setShowChatBot(false)}
+        />
+      )}
     </div>
   );
 };

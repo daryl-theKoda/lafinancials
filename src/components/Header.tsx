@@ -38,6 +38,9 @@ const Header = () => {
             >
               Services
             </button>
+            <Link to="/education" className="text-finance-gray hover:text-finance-blue transition-colors">
+              Loan Information
+            </Link>
             <button 
               onClick={() => scrollToSection('values')}
               className="text-finance-gray hover:text-finance-blue transition-colors"
@@ -93,6 +96,9 @@ const Header = () => {
               >
                 Services
               </button>
+              <Link to="/education" className="text-left text-finance-gray hover:text-finance-blue transition-colors">
+                Loan Information
+              </Link>
               <button 
                 onClick={() => scrollToSection('values')}
                 className="text-left text-finance-gray hover:text-finance-blue transition-colors"
