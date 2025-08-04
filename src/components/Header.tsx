@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,12 +59,35 @@ const Header = () => {
             >
               Partners
             </button>
-            <button 
-              onClick={() => scrollToSection('documentation')}
-              className="text-finance-gray hover:text-finance-blue transition-colors"
-            >
-              Documentation
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center text-finance-gray hover:text-finance-blue transition-colors">
+                Documentation
+                <ChevronDown className="w-4 h-4 ml-1" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-white shadow-lg border-0 z-50">
+                <DropdownMenuItem asChild>
+                  <Link to="/education" className="w-full text-finance-gray hover:text-finance-blue">
+                    Loan Information
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <button 
+                    onClick={() => scrollToSection('documentation')}
+                    className="w-full text-left text-finance-gray hover:text-finance-blue"
+                  >
+                    Documentation
+                  </button>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a 
+                    href="/apply" 
+                    className="w-full text-finance-gray hover:text-finance-blue"
+                  >
+                    Application Forms
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link to="/auth">
               <Button variant="outline" size="sm">
                 Sign In
@@ -111,12 +140,21 @@ const Header = () => {
               >
                 Partners
               </button>
-              <button 
-                onClick={() => scrollToSection('documentation')}
-                className="text-left text-finance-gray hover:text-finance-blue transition-colors"
-              >
-                Documentation
-              </button>
+              <div className="space-y-2">
+                <div className="text-finance-gray font-medium">Documentation</div>
+                <Link to="/education" className="block pl-4 text-finance-gray hover:text-finance-blue transition-colors">
+                  Loan Information
+                </Link>
+                <button 
+                  onClick={() => scrollToSection('documentation')}
+                  className="block pl-4 text-left text-finance-gray hover:text-finance-blue transition-colors"
+                >
+                  Documentation
+                </button>
+                <Link to="/apply" className="block pl-4 text-finance-gray hover:text-finance-blue transition-colors">
+                  Application Forms
+                </Link>
+              </div>
               <Link to="/auth" className="w-full">
                 <Button variant="outline" size="sm" className="w-full">
                   Sign In

@@ -87,16 +87,42 @@ const handler = async (req: Request): Promise<Response> => {
       `;
     }
 
-    const emailResponse = await resend.emails.send({
+    // Send notification to admin
+    const adminEmailResponse = await resend.emails.send({
+      from: "LAFinServices <noreply@lafinservices.com>",
+      to: ["daryl24chibange@gmail.com"],
+      subject: `New Loan Application - ${loanType}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #1e3a8a;">New Loan Application Received</h1>
+          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h2 style="color: #1e3a8a; margin-top: 0;">Application Details</h2>
+            <p><strong>Applicant:</strong> ${applicantName}</p>
+            <p><strong>Email:</strong> ${to}</p>
+            <p><strong>Application ID:</strong> ${applicationId}</p>
+            <p><strong>Loan Type:</strong> ${loanType}</p>
+            <p><strong>Loan Amount:</strong> ZWL ${loanAmount.toLocaleString()}</p>
+          </div>
+          <p>Please review this application in the admin dashboard.</p>
+        </div>
+      `
+    });
+
+    // Send confirmation to applicant
+    const applicantEmailResponse = await resend.emails.send({
       from: "LAFinServices <noreply@lafinservices.com>",
       to: [to],
       subject: subject,
       html: htmlContent,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Admin email sent:", adminEmailResponse);
+    console.log("Applicant email sent:", applicantEmailResponse);
 
-    return new Response(JSON.stringify(emailResponse), {
+    return new Response(JSON.stringify({ 
+      admin: adminEmailResponse, 
+      applicant: applicantEmailResponse 
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",

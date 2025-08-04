@@ -36,24 +36,25 @@ All colors MUST be HSL.
     --input: 214.3 31.8% 91.4%;
     --ring: 217 91% 25%;
 
-    /* Financial services color palette */
-    --finance-blue: 217 91% 25%;
-    --finance-blue-light: 217 91% 35%;
-    --finance-green: 142 76% 36%;
-    --finance-green-light: 142 76% 46%;
-    --finance-navy: 215 47% 12%;
+    /* Financial services color palette - Gold and Blue Theme */
+    --finance-blue: 221 83% 53%;
+    --finance-blue-light: 221 83% 63%;
+    --finance-gold: 45 93% 58%;
+    --finance-navy: 220 100% 20%;
     --finance-gray: 215 16% 47%;
-    --finance-light: 210 40% 96.1%;
+    --finance-light: 210 40% 98%;
 
     /* Gradients for modern appeal */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--finance-blue)), hsl(var(--finance-blue-light)));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--finance-green)), hsl(var(--finance-green-light)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--finance-blue)), hsl(var(--finance-gold)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--finance-gold)), hsl(var(--finance-blue)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--finance-blue)) 0%, hsl(var(--finance-navy)) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--finance-light)), hsl(var(--background)));
 
     /* Professional shadows */
-    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-soft: 0 4px 6px -1px hsl(var(--finance-blue) / 0.1);
+    --shadow-medium: 0 10px 15px -3px hsl(var(--finance-blue) / 0.1);
+    --shadow-large: 0 20px 25px -5px hsl(var(--finance-blue) / 0.1);
+    --shadow-elegant: 0 20px 25px -5px hsl(var(--finance-gold) / 0.2);
 
     --radius: 0.5rem;
 
@@ -84,8 +85,8 @@ All colors MUST be HSL.
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 45 93% 58%;
+    --primary-foreground: 220 100% 20%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -101,7 +102,15 @@ All colors MUST be HSL.
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 45 93% 58%;
+    
+    /* Dark theme finance colors */
+    --finance-navy: 220 100% 85%;
+    --finance-blue: 221 83% 70%;
+    --finance-gold: 45 93% 58%;
+    --finance-light: 222.2 84% 4.9%;
+    --finance-gray: 215 20% 65%;
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
