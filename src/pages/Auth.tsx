@@ -1,92 +1,60 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
-import { LogIn, UserPlus, ArrowLeft } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+  const [signupForm, setSignupForm] = useState({ email: "", password: "", fullName: "", confirmPassword: "" });
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect if already authenticated
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/dashboard");
-      }
-    };
-    checkUser();
-  }, [navigate]);
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            full_name: fullName,
-          }
-        }
-      });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success("Account created! Please check your email to verify your account.");
-        // Reset form
-        setEmail("");
-        setPassword("");
-        setFullName("");
-      }
-    } catch (error) {
-      toast.error("An unexpected error occurred");
-    } finally {
-      setIsLoading(false);
+    
+    const { error } = await signIn(loginForm.email, loginForm.password);
+    
+    if (!error) {
+      navigate('/dashboard');
     }
+    setIsLoading(false);
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success("Welcome back!");
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      toast.error("An unexpected error occurred");
-    } finally {
-      setIsLoading(false);
+    
+    if (signupForm.password !== signupForm.confirmPassword) {
+      return;
     }
+    
+    setIsLoading(true);
+    
+    const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName);
+    
+    if (!error) {
+      // Reset form
+      setSignupForm({ email: "", password: "", fullName: "", confirmPassword: "" });
+    }
+    setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-finance-light to-background flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-background/80 p-4">
       <div className="w-full max-w-md">
         <div className="mb-6">
           <Link 
@@ -97,44 +65,42 @@ const Auth = () => {
             Back to Home
           </Link>
         </div>
-
-        <Card className="shadow-large">
+        
+        <Card className="w-full shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-finance-navy">
-              Welcome to LAFinServices
-            </CardTitle>
-            <p className="text-finance-gray">
-              Access your loan dashboard
-            </p>
+            <CardTitle className="text-2xl font-bold text-primary">LA Financial Services</CardTitle>
+            <CardDescription>
+              Sign in to your account or create a new one
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="login">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div>
-                    <Label htmlFor="signin-email">Email</Label>
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email">Email</Label>
                     <Input
-                      id="signin-email"
+                      id="login-email"
                       type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your.email@example.com"
+                      placeholder="Enter your email"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
                       required
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="signin-password">Password</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">Password</Label>
                     <Input
-                      id="signin-password"
+                      id="login-password"
                       type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Your password"
+                      placeholder="Enter your password"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
                       required
                     />
                   </div>
@@ -143,55 +109,66 @@ const Auth = () => {
                     className="w-full bg-gradient-primary" 
                     disabled={isLoading}
                   >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    {isLoading ? "Signing In..." : "Sign In"}
+                    {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
               </TabsContent>
               
               <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div>
+                <form onSubmit={handleSignup} className="space-y-4">
+                  <div className="space-y-2">
                     <Label htmlFor="signup-name">Full Name</Label>
                     <Input
                       id="signup-name"
                       type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Your full name"
+                      placeholder="Enter your full name"
+                      value={signupForm.fullName}
+                      onChange={(e) => setSignupForm(prev => ({ ...prev, fullName: e.target.value }))}
                       required
                     />
                   </div>
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <Input
                       id="signup-email"
                       type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your.email@example.com"
+                      placeholder="Enter your email"
+                      value={signupForm.email}
+                      onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
                       required
                     />
                   </div>
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
                     <Input
                       id="signup-password"
                       type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Choose a strong password"
+                      placeholder="Create a password"
+                      value={signupForm.password}
+                      onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
                       required
-                      minLength={6}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-confirm">Confirm Password</Label>
+                    <Input
+                      id="signup-confirm"
+                      type="password"
+                      placeholder="Confirm your password"
+                      value={signupForm.confirmPassword}
+                      onChange={(e) => setSignupForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  {signupForm.password !== signupForm.confirmPassword && signupForm.confirmPassword && (
+                    <p className="text-sm text-destructive">Passwords do not match</p>
+                  )}
                   <Button 
                     type="submit" 
                     className="w-full bg-gradient-primary" 
-                    disabled={isLoading}
+                    disabled={isLoading || signupForm.password !== signupForm.confirmPassword}
                   >
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    {isLoading ? "Creating Account..." : "Create Account"}
+                    {isLoading ? "Creating account..." : "Create Account"}
                   </Button>
                 </form>
               </TabsContent>

@@ -1,18 +1,27 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Menu, X, ChevronDown, LogOut, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut, isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -74,14 +83,44 @@ const Header = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Link to="/auth">
-              <Button variant="outline" size="sm">
-                Sign In
-              </Button>
-            </Link>
-            <Link to="/apply">
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center text-finance-gray hover:text-finance-blue transition-colors">
+                  <User className="w-4 h-4 mr-1" />
+                  Account
+                  <ChevronDown className="w-4 h-4 ml-1" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white shadow-lg border-0 z-50">
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="w-full text-finance-gray hover:text-finance-blue">
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="w-full text-finance-gray hover:text-finance-blue">
+                        Admin Panel
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-finance-gray hover:text-finance-blue cursor-pointer">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+            )}
+            <Link to={user ? "/dashboard" : "/apply"}>
               <Button variant="hero" size="sm">
-                Apply Now
+                {user ? "Dashboard" : "Apply Now"}
               </Button>
             </Link>
           </nav>
@@ -132,16 +171,38 @@ const Header = () => {
                   FAQ
                 </Link>
               </div>
-              <Link to="/auth" className="w-full">
-                <Button variant="outline" size="sm" className="w-full">
-                  Sign In
-                </Button>
-              </Link>
-              <Link to="/apply" className="w-full">
-                <Button variant="hero" size="sm" className="w-full">
-                  Apply Now
-                </Button>
-              </Link>
+              
+              {user ? (
+                <>
+                  <Link to="/dashboard" className="text-left text-finance-gray hover:text-finance-blue transition-colors">
+                    Dashboard
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/admin" className="text-left text-finance-gray hover:text-finance-blue transition-colors">
+                      Admin Panel
+                    </Link>
+                  )}
+                  <button 
+                    onClick={handleSignOut}
+                    className="text-left text-finance-gray hover:text-finance-blue transition-colors w-full"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/apply" className="w-full">
+                    <Button variant="hero" size="sm" className="w-full">
+                      Apply Now
+                    </Button>
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         )}
