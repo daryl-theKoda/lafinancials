@@ -66,25 +66,14 @@ const Header = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-white shadow-lg border-0 z-50">
                 <DropdownMenuItem asChild>
-                  <Link to="/education" className="w-full text-finance-gray hover:text-finance-blue">
-                    Loan Information
+                  <Link to="/apply" className="w-full text-finance-gray hover:text-finance-blue">
+                    Loan Application
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <button 
-                    onClick={() => scrollToSection('documentation')}
-                    className="w-full text-left text-finance-gray hover:text-finance-blue"
-                  >
-                    Documentation
-                  </button>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a 
-                    href="/apply" 
-                    className="w-full text-finance-gray hover:text-finance-blue"
-                  >
-                    Application Forms
-                  </a>
+                  <Link to="/faq" className="w-full text-finance-gray hover:text-finance-blue">
+                    FAQ
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -142,17 +131,11 @@ const Header = () => {
               </button>
               <div className="space-y-2">
                 <div className="text-finance-gray font-medium">Documentation</div>
-                <Link to="/education" className="block pl-4 text-finance-gray hover:text-finance-blue transition-colors">
-                  Loan Information
-                </Link>
-                <button 
-                  onClick={() => scrollToSection('documentation')}
-                  className="block pl-4 text-left text-finance-gray hover:text-finance-blue transition-colors"
-                >
-                  Documentation
-                </button>
                 <Link to="/apply" className="block pl-4 text-finance-gray hover:text-finance-blue transition-colors">
-                  Application Forms
+                  Loan Application
+                </Link>
+                <Link to="/faq" className="block pl-4 text-finance-gray hover:text-finance-blue transition-colors">
+                  FAQ
                 </Link>
               </div>
               <Link to="/auth" className="w-full">
