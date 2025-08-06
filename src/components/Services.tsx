@@ -7,59 +7,38 @@ import {
   Wheat, 
   AlertCircle, 
   Users,
-  ArrowRight 
+  ArrowRight, 
+  DollarSign
 } from "lucide-react";
 
 const Services = () => {
   const services = [
-    {
-      icon: Briefcase,
-      title: "Business Loans",
-      description: "Designed to facilitate the growth of various income-generating projects for entrepreneurs and SMEs.",
-      details: "Perfect for informal entrepreneurs and emerging businesses seeking to expand operations or capitalize on new opportunities.",
-      color: "bg-gradient-primary",
-      image: "/city-business.png"
-    },
-    {
-      icon: ShoppingCart,
-      title: "Consumption Loans",
-      description: "Our core product, primarily focused on Salary-Based Lending for day-to-day consumption needs.",
-      details: "Provides vital liquidity for consumers, acting as a critical buffer for low-income earners.",
-      color: "bg-gradient-accent",
-      featured: true,
-      image: "/financial-charts.png"
-    },
-    {
-      icon: GraduationCap,
-      title: "Educational Loans",
-      description: "Addressing the increasing scarcity of government grants and loans for tertiary students.",
-      details: "Empowers parents and guardians to cover essential school fees for primary, secondary, vocational, and tertiary education.",
-      color: "bg-finance-blue",
-      image: "/education-teacher.png"
-    },
-    {
-      icon: Wheat,
-      title: "Agricultural Loans",
-      description: "Supporting small-scale farmers with seasonal financing for agricultural productivity.",
-      details: "Facilitates timely purchase of fertilizers, seeds, and covers labor costs to enhance food security.",
-      color: "bg-finance-green",
-      image: "/agriculture-greenhouse.png"
-    },
-    {
-      icon: AlertCircle,
-      title: "Emergency Loans",
-      description: "Immediate financial relief for unforeseen and urgent needs.",
-      details: "Covers critical expenses like hospitalization, medical bills, funeral expenses, and essential vehicle repairs.",
-      color: "bg-red-500"
-    },
-    {
-      icon: Users,
-      title: "Capacity Building",
-      description: "Structured skills training programs for SMEs beyond credit provision.",
-      details: "Covers Business Management, Accounting, Strategic Planning, Entrepreneurship, Marketing, and IT.",
-      color: "bg-purple-500"
-    }
-  ];
+  {
+    icon: Briefcase,
+    title: "Business Loans",
+    description: "Designed to facilitate the growth of various income-generating projects for entrepreneurs and SMEs.",
+    details: "Perfect for informal entrepreneurs and emerging businesses seeking to expand operations or capitalize on new opportunities.",
+    color: "bg-gradient-primary",
+    image: "/business.jpg"
+  },
+  {
+    icon: DollarSign,
+    title: "Salary Based Loans",
+    description: "For employed individuals with regular income.",
+    details: "Provides vital liquidity and acts as a buffer for salary earners facing day-to-day needs.",
+    color: "bg-gradient-accent",
+    featured: true,
+    image: "/consumption loan.webp"
+  },
+  {
+    icon: Users,
+    title: "Personal Loans",
+    description: "Flexible loans for personal needs and goals.",
+    details: "Covers urgent needs, lifestyle expenses, or consolidating debt with simple requirements.",
+    color: "bg-purple-500",
+    image: "/image 1.jpg"
+  }
+];
 
   return (
     <section id="services" className="py-20 bg-white">
@@ -84,7 +63,7 @@ const Services = () => {
                   service.featured ? 'ring-2 ring-finance-green' : ''
                 }`}
               >
-                <CardContent className="p-0">
+                <CardContent className="p-0 flex flex-col h-full">
                   {service.image && (
                     <div className="h-48 relative overflow-hidden">
                       <img 
@@ -122,7 +101,7 @@ const Services = () => {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="w-full group"
+                      className="w-full group mt-auto"
                       onClick={() => window.location.href = '/apply'}
                     >
                       Apply Now

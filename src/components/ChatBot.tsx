@@ -46,34 +46,36 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
     "Payment information"
   ];
 
-  const getBotResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes('loan type') || lowerMessage.includes('what loan')) {
-      return "We offer several types of loans:\n\n• Personal Loans - For individual needs\n• Business Loans - For entrepreneurs\n• Student Loans - For educational expenses\n• Agricultural Loans - For farming ventures\n• Emergency Loans - For urgent situations\n\nEach loan has different requirements and terms. Would you like details about a specific type?";
+  // Async function to get bot response from OpenRouter/DeepSeek R1
+  const getBotResponse = async (userMessage: string): Promise<string> => {
+    const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+    try {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "deepseek/deepseek-r1:free",
+          messages: [
+            {
+              role: "user",
+              content: userMessage
+            }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        return "Sorry, I couldn't reach the chatbot service. Please try again later.";
+      }
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || "Sorry, I couldn't process that.";
+    } catch (error) {
+      return "There was an error connecting to the chatbot service.";
     }
-    
-    if (lowerMessage.includes('approval') || lowerMessage.includes('how long')) {
-      return "Our loan approval process typically takes:\n\n• Initial Review: 24-48 hours\n• Document Verification: 2-3 business days\n• Final Approval: 1-2 business days\n\nTotal processing time is usually 5-7 business days. We'll keep you updated throughout the process via email and SMS.";
-    }
-    
-    if (lowerMessage.includes('document') || lowerMessage.includes('need')) {
-      return "Required documents vary by loan type, but generally include:\n\n• Valid ID/Passport\n• Proof of income (payslips/bank statements)\n• Proof of residence\n• Employment letter (if employed)\n• Business registration (for business loans)\n\nYou can upload documents during the application process or visit our office.";
-    }
-    
-    if (lowerMessage.includes('application status') || lowerMessage.includes('status')) {
-      return "You can check your application status in several ways:\n\n• Dashboard - View real-time updates\n• Email notifications - Automatic updates\n• SMS alerts - Key milestone notifications\n• Call our hotline: +263 XXX XXXX\n\nYour client number helps us locate your application quickly.";
-    }
-    
-    if (lowerMessage.includes('payment') || lowerMessage.includes('pay')) {
-      return "Payment options include:\n\n• Mobile Money (EcoCash, OneMoney)\n• Bank Transfer\n• Direct Debit\n• Cash at our offices\n\nPayment schedules are available in your dashboard. We send reminders 3 days before due dates.";
-    }
-    
-    if (lowerMessage.includes('contact') || lowerMessage.includes('office')) {
-      return "Contact us:\n\n📞 Phone: +263 XXX XXXX\n📧 Email: info@lafinservices.com\n📍 Address: Your Office Address\n🕒 Hours: Mon-Fri 8AM-5PM\n\nWhatsApp: Click the WhatsApp button for instant support!";
-    }
-    
-    return "Thank you for your question! For specific inquiries, please contact our support team at +263 XXX XXXX or use our WhatsApp support. Our team is available Mon-Fri 8AM-5PM to assist you.";
   };
 
   const sendMessage = async () => {
@@ -90,18 +92,17 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
     setInputMessage("");
     setIsTyping(true);
 
-    // Simulate bot typing delay
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: getBotResponse(inputMessage),
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, botResponse]);
-      setIsTyping(false);
-    }, 1500);
+    const botReply = await getBotResponse(userMessage.text);
+
+    const botResponse: Message = {
+      id: (Date.now() + 1).toString(),
+      text: botReply,
+      sender: 'bot',
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, botResponse]);
+    setIsTyping(false);
   };
 
   const handleQuickReply = (reply: string) => {
@@ -131,8 +132,8 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-80 h-96">
-      <Card className="h-full shadow-xl border-2 border-finance-blue/20">
+    <div className="fixed bottom-4 right-4 z-50 w-96 h-[32rem] flex flex-col">
+      <Card className="flex-1 flex flex-col shadow-xl border-2 border-finance-blue/20">
         <CardHeader className="bg-gradient-primary text-white p-3">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center">
@@ -160,7 +161,7 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="p-0 flex flex-col h-full">
+        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
           <ScrollArea className="flex-1 p-3">
             <div className="space-y-3">
               {messages.map((message) => (
@@ -243,7 +244,7 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="text-xs"
+                className="text-xs flex-1"
               />
               <Button size="sm" onClick={sendMessage} className="bg-gradient-primary">
                 <Send className="w-3 h-3" />

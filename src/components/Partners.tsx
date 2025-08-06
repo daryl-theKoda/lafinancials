@@ -46,47 +46,50 @@ const Partners = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-          {partners?.map((partner) => (
-            <Card 
-              key={partner.id}
-              className="shadow-medium hover:shadow-large transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <CardContent className="p-6 text-center">
-                {partner.logo_url && (
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <img 
-                      src={partner.logo_url} 
-                      alt={`${partner.name} logo`}
-                      className="max-w-12 max-h-12 object-contain"
-                    />
-                  </div>
-                )}
-                
-                <h3 className="text-lg font-semibold text-finance-navy mb-2">
-                  {partner.name}
-                </h3>
-                
-                {partner.description && (
-                  <p className="text-sm text-finance-gray mb-4">
-                    {partner.description}
-                  </p>
-                )}
-                
-                {partner.website_url && (
-                  <a
-                    href={partner.website_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-finance-blue hover:text-finance-navy transition-colors text-sm"
-                  >
-                    Visit Website
-                    <ExternalLink className="ml-1 w-3 h-3" />
-                  </a>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+        {/* Centered grid container */}
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+            {partners?.map((partner) => (
+              <Card 
+                key={partner.id}
+                className="shadow-medium hover:shadow-large transition-all duration-300 transform hover:-translate-y-1 mx-auto w-full max-w-xs"
+              >
+                <CardContent className="p-6 text-center">
+                  {partner.logo_url && (
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <img 
+                        src={partner.logo_url} 
+                        alt={`${partner.name} logo`}
+                        className="max-w-12 max-h-12 object-contain"
+                      />
+                    </div>
+                  )}
+                  
+                  <h3 className="text-lg font-semibold text-finance-navy mb-2">
+                    {partner.name}
+                  </h3>
+                  
+                  {partner.description && (
+                    <p className="text-sm text-finance-gray mb-4">
+                      {partner.description}
+                    </p>
+                  )}
+                  
+                  {partner.website_url && (
+                    <a
+                      href={partner.website_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-finance-blue hover:text-finance-navy transition-colors text-sm"
+                    >
+                      Visit Website
+                      <ExternalLink className="ml-1 w-3 h-3" />
+                    </a>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
 
         {(!partners || partners.length === 0) && (

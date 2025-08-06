@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, User, Home, DollarSign, CheckCircle } from "lucide-react";
+import { FileText, User, Home, DollarSign, CheckCircle, GraduationCap } from "lucide-react";
 
 const Documentation = () => {
   const loanTypes = [
@@ -37,7 +37,7 @@ const Documentation = () => {
     },
     {
       title: "Educational Loans",
-      icon: User,
+      icon: GraduationCap,
       description: "For education-related expenses",
       documents: [
         "School invoice",
@@ -48,7 +48,7 @@ const Documentation = () => {
         "3 months Bank Statements",
         "Guarantor / Collateral"
       ],
-      color: "bg-purple-500"
+      color: "bg-finance-purple"
     }
   ];
 
@@ -70,9 +70,9 @@ const Documentation = () => {
             return (
               <Card key={index} className="shadow-medium hover:shadow-large transition-shadow duration-300">
                 <CardHeader className="text-center pb-4">
-                  <div className={`w-16 h-16 ${loanType.color} rounded-full flex items-center justify-center mb-4 mx-auto`}>
-                    <IconComponent className="w-8 h-8 text-white" />
-                  </div>
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4 mx-auto border-4 border-finance-blue shadow-lg bg-white">
+  <IconComponent className={`w-14 h-14 ${loanType.title === 'Business Loans' ? 'text-finance-blue' : loanType.title === 'Educational Loans' ? 'text-finance-purple' : 'text-finance-blue'}`} />
+</div>
                   <CardTitle className="text-xl text-finance-navy mb-2">
                     {loanType.title}
                   </CardTitle>

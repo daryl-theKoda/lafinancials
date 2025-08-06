@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, Facebook, Twitter, Linkedin, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, MessageCircle } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -15,15 +15,6 @@ const Footer = () => {
               and empowering individuals and businesses across Zimbabwe through innovative financial solutions.
             </p>
             <div className="flex space-x-4">
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-finance-blue cursor-pointer transition-colors">
-                <Facebook className="w-5 h-5" />
-              </div>
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-finance-blue cursor-pointer transition-colors">
-                <Twitter className="w-5 h-5" />
-              </div>
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-finance-blue cursor-pointer transition-colors">
-                <Linkedin className="w-5 h-5" />
-              </div>
             </div>
           </div>
 
@@ -68,23 +59,28 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
             <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-finance-green" />
-                <span className="text-white/80">+263 77 123 4567</span>
+              <div className="flex items-start space-x-3">
+                <Phone className="w-5 h-5 text-finance-green mt-0.5" />
+                <div className="flex flex-col">
+                  <span className="text-white/80">+263 711 614 799</span>
+                  <span className="text-white/80">+263 772 243 765</span>
+                  <span className="text-white/80">+263 772 673 695</span>
+                </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-finance-green" />
-                <span className="text-white/80">info@lafinancial.co.zw</span>
+                <span className="text-white/80">info@lafinancialservices.co.zw</span>
               </div>
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-finance-green mt-0.5" />
                 <span className="text-white/80">
-                  Harare, Zimbabwe<br />
-                  123 Financial District
+                19 The Chase Road, <br />
+                Emerald Hill, <br />
+                Harare
                 </span>
               </div>
               <a 
-                href="https://wa.me/263771234567" 
+                href="https://wa.me/263772673695" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center space-x-3 text-finance-green hover:text-white transition-colors"
@@ -113,9 +109,12 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-white/20">
-          <p className="text-white/60 text-xs text-center">
+        <div className="mt-6 pt-6 border-t border-white/20 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-white/60 text-xs text-center md:text-left mb-4 md:mb-0">
             LA Financial Services (Pvt.) Ltd is licensed by the Reserve Bank of Zimbabwe as a Credit-Only Microfinance Institution.
+          </p>
+          <p className="text-white/60 text-xs">
+            Developed By: <a href="https://devaura.com" target="_blank" rel="noopener noreferrer" className="text-finance-green hover:text-white transition-colors">DevAura</a>
           </p>
         </div>
       </div>

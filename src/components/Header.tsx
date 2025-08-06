@@ -36,7 +36,14 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-finance-navy">LA Financial Services</h1>
+            <a href="/">
+              <img
+                src="/logo.jpg"
+                alt="LA Financial Services Logo"
+                className="h-14 w-auto mr-4 drop-shadow-md"
+                style={{ maxHeight: "56px" }}
+              />
+            </a>
           </div>
           
           {/* Desktop Navigation */}

@@ -29,7 +29,7 @@ const About = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <img 
-                src="/growth-hands.png" 
+                src="/nurture.jpg" 
                 alt="Nurturing growth and development"
                 className="w-full h-96 object-cover rounded-2xl shadow-large"
               />
