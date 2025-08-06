@@ -24,6 +24,34 @@ const About = () => {
           </p>
         </div>
 
+        {/* Growth Image Feature */}
+        <div className="mb-16 relative">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <img 
+                src="/growth-hands.png" 
+                alt="Nurturing growth and development"
+                className="w-full h-96 object-cover rounded-2xl shadow-large"
+              />
+            </div>
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-finance-navy">
+                Nurturing Financial Growth
+              </h3>
+              <p className="text-finance-gray leading-relaxed text-lg">
+                Just as a small seed requires proper care and nurturing to grow into a thriving plant, 
+                we believe that with the right financial support and guidance, every individual and 
+                business can flourish and achieve sustainable prosperity.
+              </p>
+              <p className="text-finance-gray leading-relaxed">
+                Our commitment extends beyond providing loans - we cultivate lasting relationships 
+                that help our clients build assets, create jobs, and elevate their living standards 
+                across Zimbabwe.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           {/* About Card */}
           <Card className="shadow-medium hover:shadow-large transition-shadow duration-300">

@@ -17,7 +17,8 @@ const Services = () => {
       title: "Business Loans",
       description: "Designed to facilitate the growth of various income-generating projects for entrepreneurs and SMEs.",
       details: "Perfect for informal entrepreneurs and emerging businesses seeking to expand operations or capitalize on new opportunities.",
-      color: "bg-gradient-primary"
+      color: "bg-gradient-primary",
+      image: "/city-business.png"
     },
     {
       icon: ShoppingCart,
@@ -25,21 +26,24 @@ const Services = () => {
       description: "Our core product, primarily focused on Salary-Based Lending for day-to-day consumption needs.",
       details: "Provides vital liquidity for consumers, acting as a critical buffer for low-income earners.",
       color: "bg-gradient-accent",
-      featured: true
+      featured: true,
+      image: "/financial-charts.png"
     },
     {
       icon: GraduationCap,
       title: "Educational Loans",
       description: "Addressing the increasing scarcity of government grants and loans for tertiary students.",
       details: "Empowers parents and guardians to cover essential school fees for primary, secondary, vocational, and tertiary education.",
-      color: "bg-finance-blue"
+      color: "bg-finance-blue",
+      image: "/education-teacher.png"
     },
     {
       icon: Wheat,
       title: "Agricultural Loans",
       description: "Supporting small-scale farmers with seasonal financing for agricultural productivity.",
       details: "Facilitates timely purchase of fertilizers, seeds, and covers labor costs to enhance food security.",
-      color: "bg-finance-green"
+      color: "bg-finance-green",
+      image: "/agriculture-greenhouse.png"
     },
     {
       icon: AlertCircle,
@@ -76,14 +80,26 @@ const Services = () => {
             return (
               <Card 
                 key={index} 
-                className={`shadow-medium hover:shadow-large transition-all duration-300 transform hover:-translate-y-1 ${
+                className={`shadow-medium hover:shadow-large transition-all duration-300 transform hover:-translate-y-1 overflow-hidden ${
                   service.featured ? 'ring-2 ring-finance-green' : ''
                 }`}
               >
-                <CardContent className="p-6">
-                  <div className={`w-12 h-12 ${service.color} rounded-lg flex items-center justify-center mb-4`}>
-                    <IconComponent className="w-6 h-6 text-white" />
-                  </div>
+                <CardContent className="p-0">
+                  {service.image && (
+                    <div className="h-48 relative overflow-hidden">
+                      <img 
+                        src={service.image} 
+                        alt={service.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    </div>
+                  )}
+                  
+                  <div className="p-6">
+                    <div className={`w-12 h-12 ${service.color} rounded-lg flex items-center justify-center mb-4`}>
+                      <IconComponent className="w-6 h-6 text-white" />
+                    </div>
                   
                   {service.featured && (
                     <div className="inline-block bg-finance-green text-white text-xs px-2 py-1 rounded-full mb-2">
@@ -103,15 +119,16 @@ const Services = () => {
                     {service.details}
                   </p>
                   
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full group"
-                    onClick={() => window.location.href = '/apply'}
-                  >
-                    Apply Now
-                    <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full group"
+                      onClick={() => window.location.href = '/apply'}
+                    >
+                      Apply Now
+                      <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             );
