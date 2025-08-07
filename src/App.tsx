@@ -8,7 +8,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
-import Apply from "./pages/Apply";
+import LoanTypeSelection from "./components/LoanTypeSelection";
+import { BusinessLoanForm } from "./components/business-loan-form/BusinessLoanForm";
+import PersonalLoanForm from "./components/loan-form/PersonalLoanForm";
+import { SalaryLoanForm } from "./components/salary-loan-form";
 import Admin from "./pages/Admin";
 import Education from "./pages/Education";
 import FAQ from "./pages/FAQ";
@@ -28,11 +31,10 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/education" element={<Education />} />
             <Route path="/faq" element={<FAQ />} />
-            <Route path="/apply" element={
-              <ProtectedRoute>
-                <Apply />
-              </ProtectedRoute>
-            } />
+            <Route path="/apply" element={<ProtectedRoute><LoanTypeSelection /></ProtectedRoute>} />
+<Route path="/apply/business" element={<ProtectedRoute><BusinessLoanForm /></ProtectedRoute>} />
+<Route path="/apply/personal" element={<ProtectedRoute><PersonalLoanForm /></ProtectedRoute>} />
+<Route path="/apply/salary" element={<ProtectedRoute><SalaryLoanForm /></ProtectedRoute>} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
