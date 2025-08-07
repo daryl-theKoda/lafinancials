@@ -1,7 +1,9 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-export function EmploymentDetailsStep({ form }: { form: any }) {
+import { useFormContext } from "react-hook-form";
+export function EmploymentDetailsStep() {
+  const form = useFormContext();
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <FormField control={form.control} name="employerName" render={({ field }) => (

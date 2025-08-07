@@ -1,7 +1,9 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 
-export function DeclarationStep({ form }: { form: any }) {
+import { useFormContext } from "react-hook-form";
+export function DeclarationStep() {
+  const form = useFormContext();
   return (
     <div className="space-y-6">
       <FormField control={form.control} name="declarationAccepted" render={({ field }) => (

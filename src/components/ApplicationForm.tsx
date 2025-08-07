@@ -110,53 +110,7 @@ const steps = [
 
 export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplicationFormProps) {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const supabase = createClient();
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getUser();
-  }, [supabase.auth]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
-      </div>
-    );
-  }
-  
-  // Redirect if not authenticated or wrong loan type
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
-        <div className="bg-yellow-50 p-6 rounded-lg max-w-md w-full">
-          <LogIn className="h-12 w-12 mx-auto mb-4 text-yellow-500" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sign In Required</h2>
-          <p className="text-gray-600 mb-6">
-            You need to be signed in to access the loan application.
-          </p>
-          <Link 
-            to="/auth/signin"
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
-          >
-            Sign In
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   if (loanType !== 'personal') {
     onError?.(new Error('This form is for personal loan applications only'));
@@ -218,24 +172,17 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
   // Combined onSubmit function with file uploads and database save
   const onSubmit = async (formData: FormData) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        onError?.(new Error('Please sign in to continue'));
-        navigate('/auth');
-        return;
-      }
-
       // Upload files if they exist
       const uploads = [];
       if (formData.idPhoto?.[0]) {
         uploads.push(
-          uploadFile(formData.idPhoto[0], `users/${user.id}/documents`)
+          uploadFile(formData.idPhoto[0], `documents`)
             .then(url => ({ idPhoto: url }))
         );
       }
       if (formData.proofOfResidence?.[0]) {
         uploads.push(
-          uploadFile(formData.proofOfResidence[0], `users/${user.id}/documents`)
+          uploadFile(formData.proofOfResidence[0], `documents`)
             .then(url => ({ proofOfResidence: url }))
         );
       }
@@ -248,7 +195,6 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
       const applicationData = {
         ...formData,
         ...uploadedFiles,
-        user_id: user.id,
         application_date: new Date().toISOString(),
         status: 'submitted',
         loan_type: loanType,
@@ -256,6 +202,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
         idPhoto: undefined,
         proofOfResidence: undefined,
       };
+
 
       // Save to Supabase
       const { data, error } = await supabase

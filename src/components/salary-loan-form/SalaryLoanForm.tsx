@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -88,12 +88,10 @@ export default function SalaryLoanForm() {
     setIsSubmitting(true);
     try {
       // Handle file uploads
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) throw new Error("Not authenticated");
       const uploadFile = async (fileList: FileList | File[], path: string) => {
         if (!fileList || fileList.length === 0) return undefined;
         const file = fileList[0];
-        const { data, error } = await supabase.storage.from("documents").upload(`${user.id}/${path}/${file.name}`, file, { upsert: true });
+        const { data, error } = await supabase.storage.from("documents").upload(`documents/${path}/${file.name}`, file, { upsert: true });
         if (error) throw error;
         return data?.path;
       };
@@ -109,7 +107,6 @@ export default function SalaryLoanForm() {
       const applicationData = {
         ...values,
         ...uploads,
-        user_id: user.id,
         submitted_at: new Date().toISOString(),
         status: "submitted",
       };
@@ -134,46 +131,48 @@ export default function SalaryLoanForm() {
       >
         ← Back to Dashboard
       </button>
-      <form
-        className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6"
-      onSubmit={form.handleSubmit(onSubmit)}
-      autoComplete="off"
-    >
-      <h2 className="text-xl font-bold mb-6 text-center">Salary-Based Loan Application</h2>
-      <div className="mb-8">
-        <div className="flex justify-between mb-4">
-          {steps.map((step, idx) => (
-            <div
-              key={step.label}
-              className={`flex-1 text-xs text-center ${idx === currentStep ? "font-bold text-primary" : "text-muted-foreground"}`}
-            >
-              {step.label}
+      <FormProvider {...form}>
+        <form
+          className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6"
+          onSubmit={form.handleSubmit(onSubmit)}
+          autoComplete="off"
+        >
+          <h2 className="text-xl font-bold mb-6 text-center">Salary-Based Loan Application</h2>
+          <div className="mb-8">
+            <div className="flex justify-between mb-4">
+              {steps.map((step, idx) => (
+                <div
+                  key={step.label}
+                  className={`flex-1 text-xs text-center ${idx === currentStep ? "font-bold text-primary" : "text-muted-foreground"}`}
+                >
+                  {step.label}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-          <div
-            className="bg-primary h-2 rounded-full transition-all"
-            style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-          />
-        </div>
-      </div>
-      <StepComponent form={form} />
-      <div className="flex justify-between mt-8">
-        <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 0}>
-          Previous
-        </Button>
-        {currentStep < steps.length - 1 ? (
-          <Button type="button" onClick={nextStep}>
-            Next
-          </Button>
-        ) : (
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit Application"}
-          </Button>
-        )}
-      </div>
-    </form>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+              <div
+                className="bg-primary h-2 rounded-full transition-all"
+                style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+              />
+            </div>
+          </div>
+          <StepComponent />
+          <div className="flex justify-between mt-8">
+            <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 0}>
+              Previous
+            </Button>
+            {currentStep < steps.length - 1 ? (
+              <Button type="button" onClick={nextStep}>
+                Next
+              </Button>
+            ) : (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit Application"}
+              </Button>
+            )}
+          </div>
+        </form>
+      </FormProvider>
     </>
   );
 }

@@ -2,7 +2,9 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export function PersonalInfoStep({ form }: { form: any }) {
+import { useFormContext } from "react-hook-form";
+export function PersonalInfoStep() {
+  const form = useFormContext();
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <FormField control={form.control} name="fullName" render={({ field }) => (

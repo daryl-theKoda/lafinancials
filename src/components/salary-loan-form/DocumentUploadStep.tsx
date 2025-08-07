@@ -1,7 +1,9 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-export function DocumentUploadStep({ form }: { form: any }) {
+import { useFormContext } from "react-hook-form";
+export function DocumentUploadStep() {
+  const form = useFormContext();
   return (
     <div className="space-y-6">
       <FormField control={form.control} name="idCopy" render={({ field }) => (
