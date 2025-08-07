@@ -105,8 +105,8 @@ const Documentation = () => {
             <button className="bg-white text-finance-blue px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
               Start Application
             </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-finance-blue transition-colors">
-              Contact Us
+            <button className="border-2 border-white bg-white text-finance-blue px-8 py-3 rounded-lg font-semibold transition-colors">
+               Contact Us
             </button>
           </div>
         </div>

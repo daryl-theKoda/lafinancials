@@ -38,7 +38,7 @@ const Hero = () => {
                 <ArrowRight className="ml-2" size={20} />
               </Button>
             </Link>
-            <Button variant="outline" size="xl" className="border-white text-white hover:bg-white hover:text-finance-navy" onClick={scrollToServices}>
+            <Button variant="outline" size="xl" className="border-white text-finance-navy hover:bg-white hover:text-finance-navy" onClick={scrollToServices}>
               Learn More
             </Button>
           </div>
