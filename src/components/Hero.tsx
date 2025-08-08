@@ -22,8 +22,8 @@ const Hero = () => {
       <div className="container mx-auto px-4 text-center relative z-10">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Empowering Dreams Through
-            <span className="block text-finance-green-light">Financial Solutions</span>
+           Small Loans
+            <span className="block text-finance-green-light">Big Possibilities</span>
           </h1>
           
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
