@@ -1,12 +1,13 @@
 import { Database } from "../lib/supabase/database.types";
 
-export type BusinessLoanApplication = Database["public"]["Tables"]["business_loan_applications"]["Row"];
-export type BusinessLoanOwner = Database["public"]["Tables"]["business_loan_owners"]["Row"];
-export type BusinessLoanApplicationInsert = Database["public"]["Tables"]["business_loan_applications"]["Insert"];
-export type BusinessLoanOwnerInsert = Database["public"]["Tables"]["business_loan_owners"]["Insert"];
+// Represents a single loan application, filtered by loan_type in queries.
+export type LoanApplication = Database["public"]["Tables"]["loan_applications"]["Row"];
+export type LoanApplicationInsert = Database["public"]["Tables"]["loan_applications"]["Insert"];
 
-export interface BusinessLoanApplicationWithOwners extends BusinessLoanApplication {
-  owners: BusinessLoanOwner[];
+// Note: The concept of 'owners' is not represented in the current database schema.
+// This interface is kept for structure but may need backend changes to be fully implemented.
+export interface BusinessLoanApplicationWithOwners extends LoanApplication {
+  owners: any[]; // Placeholder for owner data
 }
 
 export type ApplicationStatus = 
