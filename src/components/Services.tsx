@@ -16,16 +16,16 @@ const Services = () => {
   {
     icon: Briefcase,
     title: "Business Loans",
-    description: "Designed to facilitate the growth of various income-generating projects for entrepreneurs and SMEs.",
-    details: "Perfect for informal entrepreneurs and emerging businesses seeking to expand operations or capitalize on new opportunities.",
+    description: "Designed to facilitate the growth of income-generating projects for entrepreneurs, SMEs, and farmers.",
+    details: "Perfect for informal entrepreneurs, small-to-medium enterprises (SMEs), and farmers seeking to expand operations, purchase equipment, or capitalize on new opportunities",
     color: "bg-gradient-primary",
     image: "/business.jpg"
   },
   {
     icon: DollarSign,
     title: "Salary Based Loans",
-    description: "For employed individuals with regular income.",
-    details: "Provides vital liquidity and acts as a buffer for salary earners facing day-to-day needs.",
+    description: "Tailored financial solutions for salaried professionals and regular income earners.",
+    details: "Designed to provide immediate liquidity for daily expenses, emergency needs, or planned purchases - helping working professionals manage cash flow gaps between paychecks with ease.",
     color: "bg-gradient-accent",
     featured: true,
     image: "/consumption loan.webp"
@@ -33,8 +33,8 @@ const Services = () => {
   {
     icon: Users,
     title: "Personal Loans",
-    description: "Flexible loans for personal needs and goals.",
-    details: "Covers urgent needs, lifestyle expenses, or consolidating debt with simple requirements.",
+    description: "Personalized loans to empower your financial journey.",
+    details: "Whether for urgent expenses, lifestyle upgrades, or debt consolidation, our flexible loans come with competitive rates and minimal requirements—helping you achieve your goals with ease.",
     color: "bg-purple-500",
     image: "/image 1.jpg"
   }

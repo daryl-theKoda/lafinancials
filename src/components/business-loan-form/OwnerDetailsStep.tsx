@@ -101,7 +101,7 @@ export const OwnerDetailsStep = ({
           <Label>Gender {ownerIndex === 0 && <span className="text-destructive">*</span>}</Label>
           <Select
             onValueChange={(value) =>
-              form.setValue(`owners.${ownerIndex}.gender`, value)
+              form.setValue(`owners.${ownerIndex}.gender`, value, { shouldValidate: true })
             }
             value={owner?.gender || ""}
           >
@@ -156,7 +156,7 @@ export const OwnerDetailsStep = ({
           <Label>Marital Status</Label>
           <Select
             onValueChange={(value) =>
-              form.setValue(`owners.${ownerIndex}.maritalStatus`, value)
+              form.setValue(`owners.${ownerIndex}.maritalStatus`, value, { shouldValidate: true })
             }
             value={owner?.maritalStatus || ""}
           >

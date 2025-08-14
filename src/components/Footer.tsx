@@ -63,8 +63,8 @@ const Footer = () => {
                 <Phone className="w-5 h-5 text-finance-green mt-0.5" />
                 <div className="flex flex-col">
                   <span className="text-white/80">+263 711 614 799</span>
-                  <span className="text-white/80">+263 772 243 765</span>
-                  <span className="text-white/80">+263 772 673 695</span>
+                  <span className="text-white/80">+263 772 243 758</span>
+                  <span className="text-white/80">+263 772 573 695</span>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -80,7 +80,7 @@ const Footer = () => {
                 </span>
               </div>
               <a 
-                href="https://wa.me/263772673695" 
+                href="https://wa.me/263711614799" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center space-x-3 text-finance-green hover:text-white transition-colors"

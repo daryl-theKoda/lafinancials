@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -15,21 +15,10 @@ import {
   TermsConditionsStep,
   SuccessStep
 } from './loan-form';
-import { CheckCircle, ArrowLeft, ArrowRight, LogIn } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { createClient } from '@/lib/supabase/client';
-
-interface User {
-  id: string;
-  email?: string;
-  // Add other user properties as needed
-}
-
-interface LoanApplicationFormProps {
-  loanType: 'personal' | 'business' | 'salary';
-  onSuccess?: () => void;
-  onError?: (error: Error) => void;
-}
+import { useToast } from '@/components/ui/use-toast';
 
 const formSchema = z.object({
   // Group/Individual Info
@@ -39,7 +28,10 @@ const formSchema = z.object({
   // Personal Info
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   nationalId: z.string().min(5, 'Please enter a valid ID number'),
-  dateOfBirth: z.string().min(1, 'Please enter your date of birth'),
+  dateOfBirth: z.preprocess((v) => {
+    if (v instanceof Date) return v.toISOString().slice(0, 10); // normalize
+    return v;
+  }, z.string().min(1, 'Please enter your date of birth')),
   gender: z.string().min(1, 'Please select your gender'),
   maritalStatus: z.string().min(1, 'Please select your marital status'),
   cellNumber: z.string().min(10, 'Please enter a valid phone number'),
@@ -106,32 +98,10 @@ const steps = [
   { id: 6, title: 'Terms & Conditions', description: 'Legal agreements and declarations' },
 ];
 
-
-
 export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplicationFormProps) {
   const navigate = useNavigate();
   const supabase = createClient();
-
-  if (loanType !== 'personal') {
-    onError?.(new Error('This form is for personal loan applications only'));
-    navigate('/apply');
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
-        <div className="bg-blue-50 p-6 rounded-lg max-w-md w-full">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Incorrect Loan Type</h2>
-          <p className="text-gray-600 mb-6">
-            This form is for personal loan applications only. Please return to the loans page.
-          </p>
-          <button
-            onClick={() => navigate('/loans')}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
-          >
-            Back to Loans
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -148,6 +118,27 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
       declarationAccepted: false,
     },
   });
+
+  if (loanType !== 'personal') {
+    onError?.(new Error('This form is for personal loan applications only'));
+    navigate('/apply');
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
+        <div className="bg-blue-50 p-6 rounded-lg max-w-md w-full">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Incorrect Loan Type</h2>
+          <p className="text-gray-600 mb-6">
+            This form is for personal loan applications only. Please return to the loans page.
+          </p>
+          <Button
+            onClick={() => navigate('/loans')}
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
+          >
+            Back to Loans
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Helper function to upload file to Supabase Storage
   const uploadFile = async (file: File, path: string) => {
@@ -172,37 +163,58 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
   // Combined onSubmit function with file uploads and database save
   const onSubmit = async (formData: FormData) => {
     try {
+      // Require authenticated user to set user_id
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData.session;
+      if (!session) {
+        throw new Error('You must be signed in to submit an application.');
+      }
+
       // Upload files if they exist
-      const uploads = [];
+      const uploads: Promise<Record<string, string>>[] = [];
       if (formData.idPhoto?.[0]) {
         uploads.push(
-          uploadFile(formData.idPhoto[0], `documents`)
-            .then(url => ({ idPhoto: url }))
+          uploadFile(formData.idPhoto[0], 'documents').then((url) => ({ idPhoto: url }))
         );
       }
       if (formData.proofOfResidence?.[0]) {
         uploads.push(
-          uploadFile(formData.proofOfResidence[0], `documents`)
-            .then(url => ({ proofOfResidence: url }))
+          uploadFile(formData.proofOfResidence[0], 'documents').then((url) => ({ proofOfResidence: url }))
         );
       }
 
       // Wait for all uploads to complete
       const uploadResults = await Promise.all(uploads);
-      const uploadedFiles = uploadResults.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+      const uploadedFiles = uploadResults.reduce((acc, curr) => ({ ...acc, ...curr }), {} as Record<string, string>);
 
-      // Prepare application data
-      const applicationData = {
+      // Remove raw FileList objects for JSON serialization and merge uploaded URLs
+      const cleanFormData = {
         ...formData,
-        ...uploadedFiles,
-        application_date: new Date().toISOString(),
-        status: 'submitted',
-        loan_type: loanType,
-        // Remove file objects from the data
         idPhoto: undefined,
         proofOfResidence: undefined,
       };
 
+      // Map form fields to existing loan_applications columns
+      const applicationData = {
+        user_id: session.user.id,
+        full_name: formData.fullName,
+        email: formData.emailAddress,
+        phone: formData.cellNumber,
+        address: formData.residentialAddress,
+        employment_status: formData.employmentStatus,
+        monthly_income: Number.isFinite(formData.annualIncome as number)
+          ? Math.round((formData.annualIncome as number) / 12)
+          : 0,
+        loan_amount: formData.loanAmount,
+        loan_type: loanType,
+        status: 'submitted',
+        submitted_at: new Date().toISOString(),
+        // File URLs (if uploaded)
+        id_photo_url: (uploadedFiles as any).idPhoto ?? null,
+        proof_of_residence_url: (uploadedFiles as any).proofOfResidence ?? null,
+        // Full payload snapshot for auditing/future use (requires form_data JSONB column)
+        form_data: { ...cleanFormData, ...uploadedFiles },
+      } as const;
 
       // Save to Supabase
       const { data, error } = await supabase
@@ -215,8 +227,12 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
 
       // Mark as submitted and trigger success callback
       setIsSubmitted(true);
+      toast({
+        title: 'Application submitted',
+        description: 'Thank you. We will review your application shortly.',
+      });
       onSuccess?.();
-      
+      navigate('/');
     } catch (error) {
       console.error('Error submitting application:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to submit application'));
@@ -225,13 +241,14 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
 
   const nextStep = async () => {
     const currentStepFields = getStepFields(currentStep);
-    const isValid = await form.trigger(currentStepFields);
+    const isValid = await form.trigger(currentStepFields as any, { shouldFocus: true });
     
     if (isValid) {
       if (currentStep < steps.length) {
         setCurrentStep(currentStep + 1);
+        window.scrollTo(0, 0);
       } else {
-        form.handleSubmit(onSubmit)();
+        await form.handleSubmit(onSubmit)();
       }
     }
   };
@@ -239,6 +256,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      window.scrollTo(0, 0);
     }
   };
 
@@ -311,7 +329,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
       <SuccessStep 
         onComplete={() => {
           form.reset();
-          setCurrentStep(0);
+          setCurrentStep(1);
           setIsSubmitted(false);
         }} 
       />
@@ -379,35 +397,35 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
                   {currentStep === 5 && <EmploymentFinancialStep form={form} />}
                   {currentStep === 6 && <TermsConditionsStep form={form} />}
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between pt-6 border-t">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={prevStep}
-                    disabled={currentStep === 1}
-                    className="flex items-center gap-2"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant={currentStep === steps.length ? "accent" : "default"}
-                    onClick={nextStep}
-                    className="flex items-center gap-2"
-                  >
-                    {currentStep === steps.length ? (
-                      'Submit Application'
-                    ) : (
-                      <>
-                        Next
-                        <ArrowRight className="h-4 w-4" />
-                      </>
-                    )}
-                  </Button>
-                </div>
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between pt-6 border-t">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={prevStep}
+                      disabled={currentStep === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    
+                    <Button
+                      type={currentStep === steps.length ? 'submit' : 'button'}
+                      variant={currentStep === steps.length ? 'accent' : 'default'}
+                      onClick={currentStep === steps.length ? undefined : nextStep}
+                      className="flex items-center gap-2"
+                    >
+                      {currentStep === steps.length ? (
+                        'Submit Application'
+                      ) : (
+                        <>
+                          Next
+                          <ArrowRight className="h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </form>
               </Form>
             </CardContent>

@@ -14,7 +14,6 @@ import {
   DollarSign,
   Upload,
   Settings,
-  User,
   Download,
   MessageCircle
 } from "lucide-react";
@@ -22,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import LoanPayments from "@/components/LoanPayments";
 import ChatBot from "@/components/ChatBot";
+import { Session , User } from "@supabase/supabase-js";
 
 interface LoanApplication {
   id: string;
@@ -42,7 +42,7 @@ interface UserProfile {
 }
 
 const Dashboard = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
