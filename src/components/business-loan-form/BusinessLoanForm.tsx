@@ -21,6 +21,7 @@ export const BusinessLoanForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [applicationNumber, setApplicationNumber] = useState("");
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
   const supabase = createClient();
   const { toast } = useToast();
@@ -251,7 +252,10 @@ export const BusinessLoanForm = () => {
       }
 
       toast({ title: 'Application submitted', description: 'Thank you. We will review your application shortly.' });
-      navigate('/');
+      setIsSuccess(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
     } catch (error) {
       console.error('Error:', error);
       toast({ title: 'Submission failed', description: 'Please try again.', variant: 'destructive' as any });
@@ -259,6 +263,14 @@ export const BusinessLoanForm = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (isSuccess) {
+    return (
+      <div className="p-4 mb-4 text-green-700 bg-green-100 rounded">
+        Application submitted successfully! Redirecting to home page...
+      </div>
+    );
+  }
 
   const CurrentStepComponent = steps[currentStep]?.component || (() => null);
 

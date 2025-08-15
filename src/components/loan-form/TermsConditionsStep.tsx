@@ -21,7 +21,7 @@ export function TermsConditionsStep({ form }: { form: any }) {
 
         <FormField
           control={form.control}
-          name="acceptTerms"
+          name="declarationAccepted"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
               <FormControl>
@@ -55,7 +55,7 @@ export function TermsConditionsStep({ form }: { form: any }) {
 
         <FormField
           control={form.control}
-          name="acceptVoluntarySurrender"
+          name="termsAccepted"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
               <FormControl>
@@ -89,7 +89,7 @@ export function TermsConditionsStep({ form }: { form: any }) {
 
         <FormField
           control={form.control}
-          name="acceptPowerOfAttorney"
+          name="applicationFeeAccepted"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
               <FormControl>

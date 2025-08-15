@@ -105,6 +105,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -119,7 +120,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
     },
   });
 
-  if (loanType !== 'personal') {
+  if (loanType !== 'personal' && loanType !== 'salary') {
     onError?.(new Error('This form is for personal loan applications only'));
     navigate('/apply');
     return (
@@ -159,6 +160,14 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
       
     return publicUrl;
   };
+
+  if (isSuccess) {
+    return (
+      <div className="p-4 mb-4 text-green-700 bg-green-100 rounded">
+        Application submitted successfully! Redirecting to home page...
+      </div>
+    );
+  }
 
   // Combined onSubmit function with file uploads and database save
   const onSubmit = async (formData: FormData) => {
@@ -232,10 +241,16 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
         description: 'Thank you. We will review your application shortly.',
       });
       onSuccess?.();
-      navigate('/');
+      setIsSuccess(true);
+      setTimeout(() => navigate('/'), 3000);
     } catch (error) {
       console.error('Error submitting application:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to submit application'));
+      toast({
+        title: 'Submission failed',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive' as any,
+      });
     }
   };
 
@@ -389,7 +404,21 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(
+                    onSubmit,
+                    async () => {
+                      // Focus first invalid field and show feedback
+                      await form.trigger(undefined as any, { shouldFocus: true });
+                      toast({
+                        title: 'Please fix the highlighted fields',
+                        description: 'Some required information is missing or invalid.',
+                        variant: 'destructive' as any,
+                      });
+                    }
+                  )}
+                  className="space-y-6"
+                >
                   {currentStep === 1 && <ApplicationTypeStep form={form} />}
                   {currentStep === 2 && <PersonalInfoStep form={form} />}
                   {currentStep === 3 && <FamilyReferencesStep form={form} />}
