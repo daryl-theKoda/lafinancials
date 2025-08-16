@@ -120,12 +120,19 @@ export default function SalaryLoanForm() {
         submitted_at: new Date().toISOString(),
         status: "submitted",
       };
-      // Save to Supabase
-      const { error } = await supabase.from("salary_loan_applications").insert([applicationData]);
+      // Save to Supabase without returning rows (avoids SELECT under RLS)
+      const { error } = await supabase
+        .from("salary_loan_applications")
+        .insert([applicationData]);
       if (error) throw error;
       setIsSubmitted(true);
     } catch (e) {
-      alert("Submission failed: " + (e instanceof Error ? e.message : "Unknown error"));
+      const err: any = e;
+      const message = err?.message || err?.error?.message || 'Failed to submit application';
+      const details = err?.details || err?.hint || err?.error_description || err?.code || '';
+      console.error('Salary loan submission error:', { message, details, raw: err });
+      // Use a basic fallback UI since this file doesn't import toast here
+      window.alert(`Submission failed: ${[message, details].filter(Boolean).join(' | ')}`);
     } finally {
       setIsSubmitting(false);
     }

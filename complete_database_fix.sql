@@ -257,3 +257,16 @@ CREATE TRIGGER generate_business_loan_application_number
 AFTER INSERT ON public.business_loan_applications
 FOR EACH ROW
 EXECUTE FUNCTION generate_business_application_number();
+
+-- 15. Ensure required columns exist on loan_applications (idempotent)
+ALTER TABLE public.loan_applications
+  ADD COLUMN IF NOT EXISTS annual_income DECIMAL(15, 2),
+  ADD COLUMN IF NOT EXISTS monthly_rent DECIMAL(15, 2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS other_monthly_debts DECIMAL(15, 2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS savings_amount DECIMAL(15, 2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS checking_amount DECIMAL(15, 2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS marketing_consent BOOLEAN DEFAULT false;
+
+-- 16. Refresh PostgREST schema cache so API sees new columns/policies
+-- Requires Supabase PostgREST listener
+NOTIFY pgrst, 'reload schema';

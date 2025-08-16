@@ -216,12 +216,20 @@ export const BusinessLoanForm = () => {
         submitted_at: new Date().toISOString(),
       };
 
-      const { data: appRows, error: appError } = await supabase
+      // Insert application without returning rows (avoids SELECT under RLS)
+      const { error: appError } = await supabase
         .from('business_loan_applications')
-        .insert([payload])
-        .select('id');
+        .insert([payload], { returning: 'minimal' });
       if (appError) throw appError;
-      const applicationId = appRows?.[0]?.id as string;
+
+      // Fetch the id by application_number (SELECT permitted for anonymous via policy user_id IS NULL)
+      const { data: fetched, error: fetchError } = await supabase
+        .from('business_loan_applications')
+        .select('id')
+        .eq('application_number', appNumber)
+        .limit(1);
+      if (fetchError) throw fetchError;
+      const applicationId = fetched?.[0]?.id as string | undefined;
 
       // Insert owners into child table
       if (applicationId && Array.isArray(data.owners) && data.owners.length > 0) {
@@ -261,8 +269,11 @@ export const BusinessLoanForm = () => {
         navigate('/');
       }, 3000);
     } catch (error) {
-      console.error('Error:', error);
-      toast({ title: 'Submission failed', description: 'Please try again.', variant: 'destructive' });
+      const e = error as any;
+      const message = e?.message || e?.error?.message || 'Failed to submit application';
+      const details = e?.details || e?.hint || e?.error_description || e?.code || '';
+      console.error('Business application submission error:', { message, details, raw: e });
+      toast({ title: 'Submission failed', description: [message, details].filter(Boolean).join(' | '), variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }

@@ -1,7 +1,7 @@
 -- Create loan_applications table
 CREATE TABLE IF NOT EXISTS public.loan_applications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   
   -- Application Type
   application_type TEXT NOT NULL,
@@ -68,16 +68,28 @@ CREATE TABLE IF NOT EXISTS public.loan_applications (
 -- Enable Row Level Security
 ALTER TABLE public.loan_applications ENABLE ROW LEVEL SECURITY;
 
--- Create policies for RLS
-CREATE POLICY "Users can view their own loan applications" 
-ON public.loan_applications 
-FOR SELECT 
-USING (auth.uid() = user_id);
+-- Reset and create policies for RLS to support anonymous inserts
+DROP POLICY IF EXISTS "Users can insert their own loan applications" ON public.loan_applications;
+DROP POLICY IF EXISTS "Users can view their own loan applications" ON public.loan_applications;
 
-CREATE POLICY "Users can insert their own loan applications"
+-- Allow anyone to insert rows
+CREATE POLICY "Anyone can insert loan applications"
 ON public.loan_applications
 FOR INSERT
-WITH CHECK (auth.uid() = user_id);
+WITH CHECK (true);
+
+-- Allow users to view their own rows, anonymous rows, and admins
+CREATE POLICY "View loan applications"
+ON public.loan_applications
+FOR SELECT
+USING (
+  auth.uid() = user_id OR 
+  user_id IS NULL OR
+  EXISTS (
+    SELECT 1 FROM public.user_roles 
+    WHERE user_id = auth.uid() AND role = 'admin'
+  )
+);
 
 -- Create a trigger to update the updated_at column
 CREATE OR REPLACE FUNCTION update_updated_at_column()
