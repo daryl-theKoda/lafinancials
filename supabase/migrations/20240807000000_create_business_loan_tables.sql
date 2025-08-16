@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS public.business_loan_applications (
   other_documents_url TEXT,
   
   -- References
-  references JSONB NOT NULL,
+  business_references JSONB NOT NULL,
   
   -- Declarations
   declarations JSONB NOT NULL,
