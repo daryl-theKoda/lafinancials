@@ -259,7 +259,12 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
         marketing_consent: formData.applicationFeeAccepted || false,
       };
 
-      // Save to Supabase
+      // For now, require users to be authenticated to submit applications
+      // This is a temporary solution until we can update the database schema
+      if (!session?.user?.id) {
+        throw new Error('Please sign in to submit your loan application. You can create a free account in just a few seconds.');
+      }
+      
       const { data, error } = await supabase
         .from('loan_applications')
         .insert([applicationData])
