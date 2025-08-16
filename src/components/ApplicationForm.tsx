@@ -295,13 +295,11 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
         applicationData.user_id = null;
       }
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('loan_applications')
-        .insert([applicationData])
-        .select();
+        .insert([applicationData], { returning: 'minimal' });
 
       if (error) throw error;
-      if (!data || data.length === 0) throw new Error('No data returned from server');
 
       // Mark as submitted and trigger success callback
       setIsSubmitted(true);
