@@ -311,11 +311,19 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
       setIsSuccess(true);
       setTimeout(() => navigate('/'), 3000);
     } catch (error) {
-      console.error('Error submitting application:', error);
-      onError?.(error instanceof Error ? error : new Error('Failed to submit application'));
+      // Surface more context about the failure
+      const e = error as any;
+      const message = e?.message || e?.error?.message || 'Failed to submit application';
+      const details = e?.details || e?.hint || e?.error_description || e?.code || '';
+      console.error('Error submitting application:', {
+        message,
+        details,
+        raw: e,
+      });
+      onError?.(new Error([message, details].filter(Boolean).join(' | ')));
       toast({
         title: 'Submission failed',
-        description: error instanceof Error ? error.message : 'Please try again.',
+        description: [message, details].filter(Boolean).join(' | '),
         variant: 'destructive',
       });
     }
