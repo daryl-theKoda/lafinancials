@@ -87,9 +87,22 @@ export default function SalaryLoanForm() {
   const onSubmit = async (values: SalaryLoanFormValues) => {
     setIsSubmitting(true);
     try {
-      // Get session but don't require authentication for submission
+      // Get session and handle non-authenticated users
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData.session;
+      
+      if (!session?.user?.id) {
+        alert('Please sign in to submit your application. Your form data will be saved.');
+        
+        // Save form data to localStorage
+        localStorage.setItem('pendingSalaryLoanApplication', JSON.stringify({
+          formData: values,
+          timestamp: Date.now()
+        }));
+        
+        navigate('/auth?redirect=/apply/salary');
+        return;
+      }
 
       // Handle file uploads
       const uploadFile = async (fileList: FileList | File[], path: string) => {

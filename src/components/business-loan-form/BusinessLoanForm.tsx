@@ -135,9 +135,25 @@ export const BusinessLoanForm = () => {
     };
 
     try {
-      // Get session but don't require authentication for submission
+      // Get session and handle non-authenticated users
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData.session;
+      
+      if (!session?.user?.id) {
+        toast({
+          title: 'Sign in required',
+          description: 'Please create a free account to submit your application. Your form data will be saved.',
+        });
+        
+        // Save form data to localStorage
+        localStorage.setItem('pendingBusinessLoanApplication', JSON.stringify({
+          formData: data,
+          timestamp: Date.now()
+        }));
+        
+        navigate('/auth?redirect=/apply/business');
+        return;
+      }
 
       // Upload optional files
       const uploads: Promise<[keyof BusinessLoanFormValues, string]>[] = [];

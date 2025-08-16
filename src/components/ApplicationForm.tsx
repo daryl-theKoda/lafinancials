@@ -120,6 +120,34 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
     },
   });
 
+  // Check for saved form data on component mount
+  React.useEffect(() => {
+    const savedData = localStorage.getItem('pendingLoanApplication');
+    if (savedData) {
+      try {
+        const { formData: savedFormData, loanType: savedLoanType, timestamp } = JSON.parse(savedData);
+        // Only restore if it's for the same loan type and not too old (24 hours)
+        if (savedLoanType === loanType && Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+          // Restore form data
+          Object.keys(savedFormData).forEach(key => {
+            if (savedFormData[key] !== undefined) {
+              form.setValue(key as any, savedFormData[key]);
+            }
+          });
+          toast({
+            title: 'Form data restored',
+            description: 'Your previous form data has been restored.',
+          });
+        }
+        // Clear the saved data after restoring or if expired
+        localStorage.removeItem('pendingLoanApplication');
+      } catch (error) {
+        console.error('Error restoring form data:', error);
+        localStorage.removeItem('pendingLoanApplication');
+      }
+    }
+  }, [form, loanType, toast]);
+
   if (loanType !== 'personal' && loanType !== 'salary') {
     onError?.(new Error('This form is for personal loan applications only'));
     navigate('/apply');
@@ -259,10 +287,25 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
         marketing_consent: formData.applicationFeeAccepted || false,
       };
 
-      // For now, require users to be authenticated to submit applications
-      // This is a temporary solution until we can update the database schema
+      // Handle non-authenticated submissions by prompting user to sign up first
       if (!session?.user?.id) {
-        throw new Error('Please sign in to submit your loan application. You can create a free account in just a few seconds.');
+        // Show a friendly message and redirect to auth page
+        toast({
+          title: 'Sign in required',
+          description: 'Please create a free account to submit your application. Your form data will be saved.',
+          variant: 'default',
+        });
+        
+        // Save form data to localStorage so user doesn't lose their work
+        localStorage.setItem('pendingLoanApplication', JSON.stringify({
+          formData: cleanFormData,
+          loanType,
+          timestamp: Date.now()
+        }));
+        
+        // Redirect to auth page
+        navigate('/auth?redirect=/apply/' + loanType);
+        return;
       }
       
       const { data, error } = await supabase
