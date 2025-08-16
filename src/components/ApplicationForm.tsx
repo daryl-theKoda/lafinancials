@@ -200,27 +200,64 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
         proofOfResidence: undefined,
       };
 
-      // Map form fields to existing loan_applications columns
+      // Map form fields to match loan_applications schema
       const applicationData = {
         user_id: session?.user?.id || null,
+        application_type: formData.applicationType,
+        group_name: formData.groupName || null,
+        
+        // Personal Information
         full_name: formData.fullName,
-        email: formData.emailAddress,
-        phone: formData.cellNumber,
-        address: formData.residentialAddress,
-        employment_status: formData.employmentStatus,
-        monthly_income: Number.isFinite(formData.annualIncome as number)
-          ? Math.round((formData.annualIncome as number) / 12)
-          : 0,
-        loan_amount: formData.loanAmount,
-        loan_type: loanType,
-        status: 'submitted',
-        submitted_at: new Date().toISOString(),
-        // File URLs (if uploaded)
+        national_id: formData.nationalId,
+        date_of_birth: formData.dateOfBirth,
+        gender: formData.gender,
+        marital_status: formData.maritalStatus,
+        cell_number: formData.cellNumber,
+        email_address: formData.emailAddress,
+        residential_address: formData.residentialAddress,
         id_photo_url: (uploadedFiles as any).idPhoto ?? null,
         proof_of_residence_url: (uploadedFiles as any).proofOfResidence ?? null,
-        // Full payload snapshot for auditing/future use (requires form_data JSONB column)
-        form_data: { ...cleanFormData, ...uploadedFiles },
-      } as const;
+        
+        // Family & References
+        spouse_full_name: formData.spouseFullName || null,
+        spouse_address: formData.spouseAddress || null,
+        spouse_cell_number: formData.spouseCellNumber || null,
+        spouse_national_id: formData.spouseNationalId || null,
+        next_of_kin_name: formData.nextOfKinName,
+        next_of_kin_relationship: formData.nextOfKinRelationship,
+        next_of_kin_address: formData.nextOfKinAddress,
+        next_of_kin_cell: formData.nextOfKinCell,
+        next_of_kin_id: formData.nextOfKinId,
+        
+        // Loan & Collateral
+        loan_amount: formData.loanAmount,
+        loan_purpose: formData.loanPurpose,
+        collateral1: formData.collateral1 || null,
+        collateral2: formData.collateral2 || null,
+        collateral3: formData.collateral3 || null,
+        collateral4: formData.collateral4 || null,
+        collateral5: formData.collateral5 || null,
+        
+        // Employment & Financial
+        employment_status: formData.employmentStatus,
+        employer: formData.employer || null,
+        job_title: formData.jobTitle || null,
+        annual_income: formData.annualIncome,
+        employment_length: formData.employmentLength || null,
+        monthly_rent: formData.monthlyRent,
+        other_monthly_debts: formData.otherMonthlyDebts,
+        savings_amount: formData.savingsAmount,
+        checking_amount: formData.checkingAmount,
+        
+        // Application Metadata
+        loan_type: loanType,
+        status: 'submitted',
+        
+        // Terms & Declarations
+        terms_accepted: formData.termsAccepted,
+        declaration_accepted: formData.declarationAccepted,
+        marketing_consent: formData.applicationFeeAccepted || false,
+      };
 
       // Save to Supabase
       const { data, error } = await supabase
