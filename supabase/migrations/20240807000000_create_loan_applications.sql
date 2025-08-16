@@ -71,6 +71,8 @@ ALTER TABLE public.loan_applications ENABLE ROW LEVEL SECURITY;
 -- Reset and create policies for RLS to support anonymous inserts
 DROP POLICY IF EXISTS "Users can insert their own loan applications" ON public.loan_applications;
 DROP POLICY IF EXISTS "Users can view their own loan applications" ON public.loan_applications;
+DROP POLICY IF EXISTS "Anyone can insert loan applications" ON public.loan_applications;
+DROP POLICY IF EXISTS "View loan applications" ON public.loan_applications;
 
 -- Allow anyone to insert rows
 CREATE POLICY "Anyone can insert loan applications"

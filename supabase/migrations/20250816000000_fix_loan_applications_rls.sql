@@ -2,6 +2,7 @@
 
 -- Drop existing restrictive policies
 DROP POLICY IF EXISTS "Users can insert their own loan applications" ON public.loan_applications;
+DROP POLICY IF EXISTS "Anyone can insert loan applications" ON public.loan_applications;
 
 -- Create new policy that allows anyone to insert loan applications
 CREATE POLICY "Anyone can insert loan applications"
@@ -11,6 +12,7 @@ WITH CHECK (true);
 
 -- Update the select policy to allow users to view their own applications OR allow admins to view all
 DROP POLICY IF EXISTS "Users can view their own loan applications" ON public.loan_applications;
+DROP POLICY IF EXISTS "Users can view their own applications or admins can view all" ON public.loan_applications;
 
 CREATE POLICY "Users can view their own applications or admins can view all"
 ON public.loan_applications
@@ -25,6 +27,7 @@ USING (
 );
 
 -- Allow updates for admins only
+DROP POLICY IF EXISTS "Admins can update loan applications" ON public.loan_applications;
 CREATE POLICY "Admins can update loan applications"
 ON public.loan_applications
 FOR UPDATE
