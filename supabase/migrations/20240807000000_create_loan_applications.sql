@@ -88,12 +88,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_loan_applications_updated_at ON public.loan_applications;
 CREATE TRIGGER update_loan_applications_updated_at
 BEFORE UPDATE ON public.loan_applications
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 -- Create index on frequently queried columns
-CREATE INDEX idx_loan_applications_user_id ON public.loan_applications(user_id);
-CREATE INDEX idx_loan_applications_status ON public.loan_applications(status);
-CREATE INDEX idx_loan_applications_loan_type ON public.loan_applications(loan_type);
+CREATE INDEX IF NOT EXISTS idx_loan_applications_user_id ON public.loan_applications(user_id);
+CREATE INDEX IF NOT EXISTS idx_loan_applications_status ON public.loan_applications(status);
+CREATE INDEX IF NOT EXISTS idx_loan_applications_loan_type ON public.loan_applications(loan_type);

@@ -14,7 +14,7 @@ CREATE TYPE application_status AS ENUM (
 
 -- Create business_loan_applications table
 CREATE TABLE IF NOT EXISTS public.business_loan_applications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id BIGSERIAL PRIMARY KEY,
   application_number TEXT NOT NULL UNIQUE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   status application_status NOT NULL DEFAULT 'draft',
@@ -81,8 +81,8 @@ CREATE TABLE IF NOT EXISTS public.business_loan_applications (
 
 -- Create owners table (separate table for one-to-many relationship)
 CREATE TABLE IF NOT EXISTS public.business_loan_owners (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  application_id UUID NOT NULL REFERENCES public.business_loan_applications(id) ON DELETE CASCADE,
+  id BIGSERIAL PRIMARY KEY,
+  application_id BIGINT NOT NULL REFERENCES public.business_loan_applications(id) ON DELETE CASCADE,
   
   -- Owner Information
   full_name TEXT NOT NULL,
@@ -187,20 +187,20 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 -- Create a function to generate application numbers
-CREATE OR REPLACE FUNCTION generate_application_number()
+CREATE OR REPLACE FUNCTION generate_business_application_number()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.application_number := 'BL-' || to_char(NOW(), 'YYYYMMDD-') || 
-                           LPAD(FLOOR(random() * 10000)::text, 4, '0');
+                           LPAD(NEW.id::text, 6, '0');
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to generate application number before insert
+-- Create trigger to generate application number after insert
 CREATE TRIGGER generate_business_loan_application_number
-BEFORE INSERT ON public.business_loan_applications
+AFTER INSERT ON public.business_loan_applications
 FOR EACH ROW
-EXECUTE FUNCTION generate_application_number();
+EXECUTE FUNCTION generate_business_application_number();
 
 -- Create a function to set submitted_at timestamp
 CREATE OR REPLACE FUNCTION set_submitted_at()
