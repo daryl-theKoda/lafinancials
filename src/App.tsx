@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PublicFormAccess from "./components/PublicFormAccess";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -31,10 +32,10 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/education" element={<Education />} />
             <Route path="/faq" element={<FAQ />} />
-            <Route path="/apply" element={<ProtectedRoute><LoanTypeSelection /></ProtectedRoute>} />
-<Route path="/apply/business" element={<ProtectedRoute><BusinessLoanForm /></ProtectedRoute>} />
-<Route path="/apply/personal" element={<ProtectedRoute><PersonalLoanForm /></ProtectedRoute>} />
-<Route path="/apply/salary" element={<ProtectedRoute><SalaryLoanForm /></ProtectedRoute>} />
+            <Route path="/apply" element={<PublicFormAccess><LoanTypeSelection /></PublicFormAccess>} />
+<Route path="/apply/business" element={<PublicFormAccess><BusinessLoanForm /></PublicFormAccess>} />
+<Route path="/apply/personal" element={<PublicFormAccess><PersonalLoanForm /></PublicFormAccess>} />
+<Route path="/apply/salary" element={<PublicFormAccess><SalaryLoanForm /></PublicFormAccess>} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />

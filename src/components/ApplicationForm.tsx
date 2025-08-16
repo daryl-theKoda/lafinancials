@@ -172,12 +172,9 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
   // Combined onSubmit function with file uploads and database save
   const onSubmit = async (formData: FormData) => {
     try {
-      // Require authenticated user to set user_id
+      // Get session but don't require authentication for submission
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData.session;
-      if (!session) {
-        throw new Error('You must be signed in to submit an application.');
-      }
 
       // Upload files if they exist
       const uploads: Promise<Record<string, string>>[] = [];
@@ -205,7 +202,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
 
       // Map form fields to existing loan_applications columns
       const applicationData = {
-        user_id: session.user.id,
+        user_id: session?.user?.id || null,
         full_name: formData.fullName,
         email: formData.emailAddress,
         phone: formData.cellNumber,
@@ -249,14 +246,14 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
       toast({
         title: 'Submission failed',
         description: error instanceof Error ? error.message : 'Please try again.',
-        variant: 'destructive' as any,
+        variant: 'destructive',
       });
     }
   };
 
   const nextStep = async () => {
     const currentStepFields = getStepFields(currentStep);
-    const isValid = await form.trigger(currentStepFields as any, { shouldFocus: true });
+    const isValid = await form.trigger(currentStepFields, { shouldFocus: true });
     
     if (isValid) {
       if (currentStep < steps.length) {
@@ -409,11 +406,11 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
                     onSubmit,
                     async () => {
                       // Focus first invalid field and show feedback
-                      await form.trigger(undefined as any, { shouldFocus: true });
+                      await form.trigger();
                       toast({
                         title: 'Please fix the highlighted fields',
                         description: 'Some required information is missing or invalid.',
-                        variant: 'destructive' as any,
+                        variant: 'destructive',
                       });
                     }
                   )}

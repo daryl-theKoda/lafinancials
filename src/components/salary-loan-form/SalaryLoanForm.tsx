@@ -87,6 +87,10 @@ export default function SalaryLoanForm() {
   const onSubmit = async (values: SalaryLoanFormValues) => {
     setIsSubmitting(true);
     try {
+      // Get session but don't require authentication for submission
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData.session;
+
       // Handle file uploads
       const uploadFile = async (fileList: FileList | File[], path: string) => {
         if (!fileList || fileList.length === 0) return undefined;
@@ -107,6 +111,7 @@ export default function SalaryLoanForm() {
       const applicationData = {
         ...values,
         ...uploads,
+        user_id: session?.user?.id || null,
         submitted_at: new Date().toISOString(),
         status: "submitted",
       };

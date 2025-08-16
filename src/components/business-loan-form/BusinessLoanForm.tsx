@@ -73,7 +73,7 @@ export const BusinessLoanForm = () => {
 
   const nextStep = async () => {
     const currentFields = getStepFields(currentStep);
-    const isValid = await form.trigger(currentFields as any, { shouldFocus: true });
+    const isValid = await form.trigger(currentFields, { shouldFocus: true });
     
     if (isValid) {
       setCompletedSteps(prev => [...new Set([...prev, currentStep])]);
@@ -135,10 +135,9 @@ export const BusinessLoanForm = () => {
     };
 
     try {
-      // Require authenticated user for user_id
+      // Get session but don't require authentication for submission
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData.session;
-      if (!session) throw new Error('You must be signed in to submit an application.');
 
       // Upload optional files
       const uploads: Promise<[keyof BusinessLoanFormValues, string]>[] = [];
@@ -159,7 +158,7 @@ export const BusinessLoanForm = () => {
       // Build application payload mapping to DB columns
       const payload = {
         application_number: appNumber,
-        user_id: session.user.id,
+        user_id: session?.user?.id || null,
         status: 'submitted',
         
         // Business Information
@@ -258,7 +257,7 @@ export const BusinessLoanForm = () => {
       }, 3000);
     } catch (error) {
       console.error('Error:', error);
-      toast({ title: 'Submission failed', description: 'Please try again.', variant: 'destructive' as any });
+      toast({ title: 'Submission failed', description: 'Please try again.', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
