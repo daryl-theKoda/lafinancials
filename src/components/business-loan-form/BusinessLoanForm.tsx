@@ -140,19 +140,8 @@ export const BusinessLoanForm = () => {
       const session = sessionData.session;
       
       if (!session?.user?.id) {
-        toast({
-          title: 'Sign in required',
-          description: 'Please create a free account to submit your application. Your form data will be saved.',
-        });
-        
-        // Save form data to localStorage
-        localStorage.setItem('pendingBusinessLoanApplication', JSON.stringify({
-          formData: data,
-          timestamp: Date.now()
-        }));
-        
-        navigate('/auth?redirect=/apply/business');
-        return;
+        console.log('Submitting business loan application without authentication');
+        // This will work after database schema is updated to allow null user_id
       }
 
       // Upload optional files

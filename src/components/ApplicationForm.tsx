@@ -287,25 +287,12 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
         marketing_consent: formData.applicationFeeAccepted || false,
       };
 
-      // Handle non-authenticated submissions by prompting user to sign up first
+      // Try to submit with null user_id for non-authenticated users
+      // This will work after the database schema is updated
       if (!session?.user?.id) {
-        // Show a friendly message and redirect to auth page
-        toast({
-          title: 'Sign in required',
-          description: 'Please create a free account to submit your application. Your form data will be saved.',
-          variant: 'default',
-        });
-        
-        // Save form data to localStorage so user doesn't lose their work
-        localStorage.setItem('pendingLoanApplication', JSON.stringify({
-          formData: cleanFormData,
-          loanType,
-          timestamp: Date.now()
-        }));
-        
-        // Redirect to auth page
-        navigate('/auth?redirect=/apply/' + loanType);
-        return;
+        console.log('Submitting application without authentication');
+        // Set user_id to null for anonymous submissions
+        applicationData.user_id = null;
       }
       
       const { data, error } = await supabase

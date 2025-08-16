@@ -92,16 +92,8 @@ export default function SalaryLoanForm() {
       const session = sessionData.session;
       
       if (!session?.user?.id) {
-        alert('Please sign in to submit your application. Your form data will be saved.');
-        
-        // Save form data to localStorage
-        localStorage.setItem('pendingSalaryLoanApplication', JSON.stringify({
-          formData: values,
-          timestamp: Date.now()
-        }));
-        
-        navigate('/auth?redirect=/apply/salary');
-        return;
+        console.log('Submitting salary loan application without authentication');
+        // This will work after database schema is updated to allow null user_id
       }
 
       // Handle file uploads
