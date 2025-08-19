@@ -91,12 +91,25 @@ const Dashboard = () => {
         setProfile(profileData);
       }
 
-      // Fetch applications
-      const { data: appData, error: appError } = await supabase
+      // Fetch applications (include anonymous ones by matching email)
+      const { data: authUserData } = await supabase.auth.getUser();
+      const userEmail = authUserData?.user?.email || null;
+
+      let appsQuery = supabase
         .from('loan_applications')
         .select('*')
-        .eq('user_id', userId)
         .order('submitted_at', { ascending: false });
+
+      if (userEmail) {
+        // Include rows where user_id matches OR email_address matches
+        // Note: or() expects a comma-separated filter expression
+        appsQuery = appsQuery.or(`user_id.eq.${userId},email_address.eq.${userEmail}`);
+      } else {
+        // Fallback to user_id only
+        appsQuery = appsQuery.eq('user_id', userId);
+      }
+
+      const { data: appData, error: appError } = await appsQuery;
 
       if (appError) {
         toast.error("Failed to fetch applications");
