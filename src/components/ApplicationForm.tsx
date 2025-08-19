@@ -110,10 +110,53 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      // Application
+      applicationType: '',
+      groupName: '',
+
+      // Personal Info
+      fullName: '',
+      nationalId: '',
+      dateOfBirth: undefined as unknown as string, // stored as Date in UI; schema preprocess will normalize
+      gender: '',
+      maritalStatus: '',
+      cellNumber: '',
+      emailAddress: '',
+      residentialAddress: '',
+      // File inputs intentionally left undefined via Controller usage
+
+      // Family & References
+      spouseFullName: '',
+      spouseAddress: '',
+      spouseCellNumber: '',
+      spouseNationalId: '',
+      nextOfKinName: '',
+      nextOfKinRelationship: '',
+      nextOfKinAddress: '',
+      nextOfKinCell: '',
+      nextOfKinId: '',
+
+      // Loan & Collateral
+      loanAmount: 0,
+      loanPurpose: '',
+      collateral1: '',
+      collateral2: '',
+      collateral3: '',
+      collateral4: '',
+      collateral5: '',
+
+      // Employment & Financial
+      employmentStatus: '',
+      employer: '',
+      jobTitle: '',
+      annualIncome: 0,
+      employmentLength: '',
       monthlyRent: 0,
       otherMonthlyDebts: 0,
       savingsAmount: 0,
       checkingAmount: 0,
+
+      // Terms & Declarations
       applicationFeeAccepted: false,
       termsAccepted: false,
       declarationAccepted: false,
@@ -279,7 +322,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
         
         // Application Metadata
         loan_type: loanType,
-        status: 'submitted',
+        // status omitted to use DB default and satisfy status check constraint
         
         // Terms & Declarations
         terms_accepted: formData.termsAccepted,

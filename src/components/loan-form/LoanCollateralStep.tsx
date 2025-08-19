@@ -41,6 +41,7 @@ export function LoanCollateralStep({ form }: { form: any }) {
                   placeholder="Please describe what you need the loan for..."
                   className="min-h-[100px]"
                   {...field}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -67,7 +68,7 @@ export function LoanCollateralStep({ form }: { form: any }) {
                   <Input
                     placeholder={`Collateral item #${num} details`}
                     {...field}
-                    value={field.value || ''}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />

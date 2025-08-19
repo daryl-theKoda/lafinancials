@@ -78,7 +78,7 @@ export function FamilyReferencesStep({ form }: { form: any }) {
               <FormItem>
                 <FormLabel>Full Name *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Next of kin's full name" {...field} />
+                  <Input placeholder="Next of kin's full name" {...field} value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -92,7 +92,7 @@ export function FamilyReferencesStep({ form }: { form: any }) {
               <FormItem>
                 <FormLabel>Relationship *</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., Brother, Sister, etc." {...field} />
+                  <Input placeholder="e.g., Brother, Sister, etc." {...field} value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -106,7 +106,7 @@ export function FamilyReferencesStep({ form }: { form: any }) {
               <FormItem className="md:col-span-2">
                 <FormLabel>Residential Address *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Next of kin's full address" {...field} />
+                  <Input placeholder="Next of kin's full address" {...field} value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,7 +120,7 @@ export function FamilyReferencesStep({ form }: { form: any }) {
               <FormItem>
                 <FormLabel>Cell Number *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Next of kin's cell number" {...field} />
+                  <Input placeholder="Next of kin's cell number" {...field} value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -134,7 +134,7 @@ export function FamilyReferencesStep({ form }: { form: any }) {
               <FormItem>
                 <FormLabel>National ID Number *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Next of kin's national ID" {...field} />
+                  <Input placeholder="Next of kin's national ID" {...field} value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -14,7 +14,7 @@ export function ApplicationTypeStep({ form }: { form: any }) {
             <FormControl>
               <RadioGroup
                 onValueChange={field.onChange}
-                defaultValue={field.value}
+                value={field.value ?? undefined}
                 className="flex flex-col space-y-1"
               >
                 <FormItem className="flex items-center space-x-3 space-y-0">
@@ -48,7 +48,7 @@ export function ApplicationTypeStep({ form }: { form: any }) {
             <FormItem>
               <FormLabel>Group Name *</FormLabel>
               <FormControl>
-                <Input placeholder="Enter group name" {...field} />
+                <Input placeholder="Enter group name" {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>

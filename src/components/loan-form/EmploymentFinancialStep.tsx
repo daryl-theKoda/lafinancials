@@ -13,7 +13,7 @@ export function EmploymentFinancialStep({ form }: { form: any }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Employment Status *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select employment status" />
@@ -43,6 +43,7 @@ export function EmploymentFinancialStep({ form }: { form: any }) {
                 <Input 
                   placeholder="Company or business name" 
                   {...field} 
+                  value={field.value ?? ''}
                   disabled={form.watch("employmentStatus") === "unemployed" || form.watch("employmentStatus") === "retired"}
                 />
               </FormControl>
@@ -61,6 +62,7 @@ export function EmploymentFinancialStep({ form }: { form: any }) {
                 <Input 
                   placeholder="Your position or role" 
                   {...field} 
+                  value={field.value ?? ''}
                   disabled={form.watch("employmentStatus") === "unemployed" || form.watch("employmentStatus") === "retired"}
                 />
               </FormControl>
@@ -77,7 +79,7 @@ export function EmploymentFinancialStep({ form }: { form: any }) {
               <FormLabel>Length of Employment *</FormLabel>
               <Select 
                 onValueChange={field.onChange} 
-                defaultValue={field.value}
+                value={field.value ?? undefined}
                 disabled={form.watch("employmentStatus") === "unemployed" || form.watch("employmentStatus") === "retired"}
               >
                 <FormControl>

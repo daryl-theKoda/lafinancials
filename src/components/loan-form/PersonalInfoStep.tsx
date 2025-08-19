@@ -24,7 +24,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
           <FormItem className="md:col-span-2">
             <FormLabel>Full Name *</FormLabel>
             <FormControl>
-              <Input placeholder="Enter your full name" {...field} />
+              <Input placeholder="Enter your full name" {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -38,7 +38,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
           <FormItem>
             <FormLabel>National ID Number *</FormLabel>
             <FormControl>
-              <Input placeholder="Enter national ID number" {...field} />
+              <Input placeholder="Enter national ID number" {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -62,7 +62,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
                     )}
                   >
                     {field.value ? (
-                      format(field.value, "PPP")
+                      format(new Date(field.value), "PPP")
                     ) : (
                       <span>Pick a date</span>
                     )}
@@ -73,8 +73,8 @@ export function PersonalInfoStep({ form }: { form: any }) {
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={field.value}
-                  onSelect={field.onChange}
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(d) => field.onChange(d ? d.toISOString().slice(0,10) : '')}
                   disabled={(date) =>
                     date > new Date() || date < new Date("1900-01-01")
                   }
@@ -93,7 +93,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Gender *</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select onValueChange={field.onChange} value={field.value ?? undefined}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Select gender" />
@@ -117,7 +117,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
           <FormItem className="md:col-span-2">
             <FormLabel>Residential Address *</FormLabel>
             <FormControl>
-              <Input placeholder="Enter your full address" {...field} />
+              <Input placeholder="Enter your full address" {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -131,7 +131,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
           <FormItem>
             <FormLabel>Email Address *</FormLabel>
             <FormControl>
-              <Input type="email" placeholder="your.email@example.com" {...field} />
+              <Input type="email" placeholder="your.email@example.com" {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -145,7 +145,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
           <FormItem>
             <FormLabel>Cell Number *</FormLabel>
             <FormControl>
-              <Input placeholder="+263 77 123 4567" {...field} />
+              <Input placeholder="+263 77 123 4567" {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -158,7 +158,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Marital Status *</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select onValueChange={field.onChange} value={field.value ?? undefined}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Select marital status" />
@@ -183,7 +183,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
           <FormItem>
             <FormLabel>Trade/Profession *</FormLabel>
             <FormControl>
-              <Input placeholder="Your trade or profession" {...field} />
+              <Input placeholder="Your trade or profession" {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -197,7 +197,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
           <FormItem>
             <FormLabel>Trade Area *</FormLabel>
             <FormControl>
-              <Input placeholder="Area where you practice your trade" {...field} />
+              <Input placeholder="Area where you practice your trade" {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -211,7 +211,7 @@ export function PersonalInfoStep({ form }: { form: any }) {
           <FormItem>
             <FormLabel>Highest Educational Level *</FormLabel>
             <FormControl>
-              <Input placeholder="e.g., O-Level, A-Level, Degree, etc." {...field} />
+              <Input placeholder="e.g., O-Level, A-Level, Degree, etc." {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
