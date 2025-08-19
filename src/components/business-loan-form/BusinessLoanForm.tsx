@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, type FieldPath } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -87,11 +87,11 @@ export const BusinessLoanForm = () => {
     window.scrollTo(0, 0);
   };
 
-  const getStepFields = (step: number): string[] => {
+  const getStepFields = (step: number): FieldPath<BusinessLoanFormValues>[] => {
     switch (step) {
-      case 0: return ['legalBusinessName', 'registrationNumber'];
-      case 1: return ['annualTurnover', 'bankName'];
-      case 2: return ['loanAmount', 'loanPurpose'];
+      case 0: return ['legalBusinessName', 'registrationNumber'] as unknown as FieldPath<BusinessLoanFormValues>[];
+      case 1: return ['annualTurnover', 'bankName'] as unknown as FieldPath<BusinessLoanFormValues>[];
+      case 2: return ['loanAmount', 'loanPurpose'] as unknown as FieldPath<BusinessLoanFormValues>[];
       case 3: return [
         'owners.0.fullName',
         'owners.0.idNumber',
@@ -111,10 +111,10 @@ export const BusinessLoanForm = () => {
         'owners.0.nextOfKinAddress',
         'owners.0.nextOfKinPhone',
         'owners.0.nextOfKinIdNumber',
-      ];
-      case 4: return [];
-      case 5: return ['declarations'];
-      default: return [];
+      ] as unknown as FieldPath<BusinessLoanFormValues>[];
+      case 4: return [] as unknown as FieldPath<BusinessLoanFormValues>[];
+      case 5: return ['declarations'] as unknown as FieldPath<BusinessLoanFormValues>[];
+      default: return [] as unknown as FieldPath<BusinessLoanFormValues>[];
     }
   };
 
@@ -135,14 +135,9 @@ export const BusinessLoanForm = () => {
     };
 
     try {
-      // Get session and handle non-authenticated users
+      // Get session if available; allow anonymous submissions
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData.session;
-      
-      if (!session?.user?.id) {
-        console.log('Submitting business loan application without authentication');
-        // This will work after database schema is updated to allow null user_id
-      }
 
       // Upload optional files
       const uploads: Promise<[keyof BusinessLoanFormValues, string]>[] = [];
@@ -163,7 +158,7 @@ export const BusinessLoanForm = () => {
       // Build application payload mapping to DB columns
       const payload = {
         application_number: appNumber,
-        user_id: session?.user?.id || null,
+        user_id: session?.user?.id ?? null,
         status: 'submitted',
         
         // Business Information
@@ -219,7 +214,7 @@ export const BusinessLoanForm = () => {
       // Insert application without returning rows (avoids SELECT under RLS)
       const { error: appError } = await supabase
         .from('business_loan_applications')
-        .insert([payload], { returning: 'minimal' });
+        .insert([payload]);
       if (appError) throw appError;
 
       // Fetch the id by application_number (SELECT permitted for anonymous via policy user_id IS NULL)

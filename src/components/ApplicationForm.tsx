@@ -131,7 +131,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
           // Restore form data
           Object.keys(savedFormData).forEach(key => {
             if (savedFormData[key] !== undefined) {
-              form.setValue(key as any, savedFormData[key]);
+              form.setValue(key as keyof FormData, savedFormData[key]);
             }
           });
           toast({
@@ -200,7 +200,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
   // Combined onSubmit function with file uploads and database save
   const onSubmit = async (formData: FormData) => {
     try {
-      // Get session but don't require authentication for submission
+      // Get session if available; allow anonymous submissions
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData.session;
 
@@ -230,7 +230,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
 
       // Map form fields to match loan_applications schema
       const applicationData = {
-        user_id: session?.user?.id || null,
+        user_id: session?.user?.id ?? null,
         application_type: formData.applicationType,
         group_name: formData.groupName || null,
         
@@ -297,7 +297,7 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
       
       const { error } = await supabase
         .from('loan_applications')
-        .insert([applicationData], { returning: 'minimal' });
+        .insert([applicationData]);
 
       if (error) throw error;
 
