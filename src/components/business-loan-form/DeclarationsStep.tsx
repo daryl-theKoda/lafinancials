@@ -2,6 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "../ui/input";
+import { Controller } from "react-hook-form";
 
 export const DeclarationsStep = ({ form }: { form: any }) => {
   return (
@@ -14,9 +15,12 @@ export const DeclarationsStep = ({ form }: { form: any }) => {
           
           <div className="space-y-4">
             <div className="flex items-start space-x-2">
-              <Checkbox 
-                id="declaration1" 
-                {...form.register("declarations.legal.agreement1")}
+              <Controller
+                name="declarations.legal.agreement1"
+                control={form.control}
+                render={({ field }) => (
+                  <Checkbox id="declaration1" checked={!!field.value} onCheckedChange={field.onChange} />
+                )}
               />
               <div className="space-y-1 leading-none">
                 <Label htmlFor="declaration1">
@@ -28,9 +32,12 @@ export const DeclarationsStep = ({ form }: { form: any }) => {
             </div>
             
             <div className="flex items-start space-x-2">
-              <Checkbox 
-                id="declaration2" 
-                {...form.register("declarations.legal.agreement2")}
+              <Controller
+                name="declarations.legal.agreement2"
+                control={form.control}
+                render={({ field }) => (
+                  <Checkbox id="declaration2" checked={!!field.value} onCheckedChange={field.onChange} />
+                )}
               />
               <div className="space-y-1 leading-none">
                 <Label htmlFor="declaration2">
@@ -41,9 +48,12 @@ export const DeclarationsStep = ({ form }: { form: any }) => {
             </div>
             
             <div className="flex items-start space-x-2">
-              <Checkbox 
-                id="declaration3" 
-                {...form.register("declarations.legal.agreement3")}
+              <Controller
+                name="declarations.legal.agreement3"
+                control={form.control}
+                render={({ field }) => (
+                  <Checkbox id="declaration3" checked={!!field.value} onCheckedChange={field.onChange} />
+                )}
               />
               <div className="space-y-1 leading-none">
                 <Label htmlFor="declaration3">
@@ -54,9 +64,12 @@ export const DeclarationsStep = ({ form }: { form: any }) => {
             </div>
             
             <div className="flex items-start space-x-2">
-              <Checkbox 
-                id="declaration4" 
-                {...form.register("declarations.legal.agreement4")}
+              <Controller
+                name="declarations.legal.agreement4"
+                control={form.control}
+                render={({ field }) => (
+                  <Checkbox id="declaration4" checked={!!field.value} onCheckedChange={field.onChange} />
+                )}
               />
               <div className="space-y-1 leading-none">
                 <Label htmlFor="declaration4">
@@ -80,17 +93,20 @@ export const DeclarationsStep = ({ form }: { form: any }) => {
               </p>
               
               <div className="flex items-start space-x-2 pt-2">
-                <Checkbox 
-                  id="privacyAgreement" 
-                  {...form.register("declarations.privacy.agreement")}
-                />
-                <div className="space-y-1 leading-none">
-                  <Label htmlFor="privacyAgreement">
-                    I have read and agree to the Privacy Policy and consent to the processing of my personal data as
-                    described therein.
-                  </Label>
-                </div>
+              <Controller
+                name="declarations.privacy.agreement"
+                control={form.control}
+                render={({ field }) => (
+                  <Checkbox id="privacyAgreement" checked={!!field.value} onCheckedChange={field.onChange} />
+                )}
+              />
+              <div className="space-y-1 leading-none">
+                <Label htmlFor="privacyAgreement">
+                  I have read and agree to the Privacy Policy and consent to the processing of my personal data as
+                  described therein.
+                </Label>
               </div>
+            </div>
             </div>
             
             <div className="space-y-2">
@@ -99,27 +115,36 @@ export const DeclarationsStep = ({ form }: { form: any }) => {
               </Label>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="emailMarketing" 
-                    {...form.register("declarations.marketing.email")}
+                  <Controller
+                    name="declarations.marketing.email"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Checkbox id="emailMarketing" checked={!!field.value} onCheckedChange={field.onChange} />
+                    )}
                   />
                   <Label htmlFor="emailMarketing" className="font-normal">
                     I agree to receive marketing communications via email
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="smsMarketing" 
-                    {...form.register("declarations.marketing.sms")}
+                  <Controller
+                    name="declarations.marketing.sms"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Checkbox id="smsMarketing" checked={!!field.value} onCheckedChange={field.onChange} />
+                    )}
                   />
                   <Label htmlFor="smsMarketing" className="font-normal">
                     I agree to receive marketing communications via SMS
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="phoneMarketing" 
-                    {...form.register("declarations.marketing.phone")}
+                  <Controller
+                    name="declarations.marketing.phone"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Checkbox id="phoneMarketing" checked={!!field.value} onCheckedChange={field.onChange} />
+                    )}
                   />
                   <Label htmlFor="phoneMarketing" className="font-normal">
                     I agree to receive marketing communications via phone
@@ -206,9 +231,12 @@ export const DeclarationsStep = ({ form }: { form: any }) => {
             </div>
             
             <div className="flex items-start space-x-2 pt-2">
-              <Checkbox 
-                id="signatureAgreement" 
-                {...form.register("declarations.signatureAgreement")}
+              <Controller
+                name="declarations.signatureAgreement"
+                control={form.control}
+                render={({ field }) => (
+                  <Checkbox id="signatureAgreement" checked={!!field.value} onCheckedChange={field.onChange} />
+                )}
               />
               <div className="space-y-1 leading-none">
                 <Label htmlFor="signatureAgreement">

@@ -1,10 +1,11 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
 import { useFormContext } from "react-hook-form";
+
 export function PersonalInfoStep() {
   const form = useFormContext();
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <FormField control={form.control} name="fullName" render={({ field }) => (
@@ -86,13 +87,26 @@ export function PersonalInfoStep() {
           <FormMessage />
         </FormItem>
       )} />
-      <FormField control={form.control} name="dependents" render={({ field }) => (
-        <FormItem>
-          <FormLabel>Number of Dependents *</FormLabel>
-          <FormControl><Input type="number" min={0} placeholder="0" {...field} /></FormControl>
-          <FormMessage />
-        </FormItem>
-      )} />
+      <FormField 
+        control={form.control} 
+        name="dependents" 
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Number of Dependents *</FormLabel>
+            <FormControl>
+              <Input 
+                type="number" 
+                min={0} 
+                placeholder="0" 
+                {...field}
+                value={field.value === undefined ? '' : field.value}
+                onChange={(e) => field.onChange(e.target.value === '' ? 0 : parseInt(e.target.value))}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} 
+      />
       <FormField control={form.control} name="educationLevel" render={({ field }) => (
         <FormItem className="md:col-span-2">
           <FormLabel>Highest Educational Level *</FormLabel>

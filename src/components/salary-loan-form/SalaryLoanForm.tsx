@@ -11,7 +11,7 @@ import { DocumentUploadStep } from "./DocumentUploadStep";
 import { DeclarationStep } from "./DeclarationStep";
 import { SuccessStep } from "./SuccessStep";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 
 const steps = [
   { label: "Personal Information", component: PersonalInfoStep },
@@ -22,12 +22,73 @@ const steps = [
   { label: "Declarations & Agreements", component: DeclarationStep },
 ];
 
+// Fields per step for targeted validation on Next
+const stepFields: string[][] = [
+  // 0: Personal Information
+  [
+    "fullName",
+    "nationalId",
+    "dateOfBirth",
+    "gender",
+    "residentialAddress",
+    "email",
+    "cellNumber",
+    "maritalStatus",
+    "dependents",
+    "educationLevel",
+  ],
+  // 1: Employment Details
+  [
+    "employerName",
+    "employerAddress",
+    "department",
+    "employeeNumber",
+    "jobTitle",
+    "employmentStartDate",
+    "employmentStatus",
+    "hrName",
+    "hrNumber",
+  ],
+  // 2: Financial Information
+  [
+    "grossSalary",
+    "netSalary",
+    "otherIncome",
+    "householdExpenses",
+    "debts",
+  ],
+  // 3: Loan Details
+  [
+    "loanAmount",
+    "loanPurpose",
+    "repaymentPeriod",
+    "repaymentFrequency",
+  ],
+  // 4: Document Uploads
+  [
+    "idCopy",
+    "proofOfResidence",
+    "payslip",
+    "bankStatements",
+    "employerLetter",
+    "photos",
+  ],
+  // 5: Declarations & Agreements
+  [
+    "declarationAccepted",
+    "guaranteeAccepted",
+    "voluntarySurrenderAccepted",
+    "powerOfAttorneyAccepted",
+    "affidavitAccepted",
+    "agreementAccepted",
+  ],
+];
+
 export default function SalaryLoanForm() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
-  const supabase = createClient();
 
   const form = useForm<SalaryLoanFormValues>({
     resolver: zodResolver(salaryLoanFormSchema),
@@ -78,7 +139,9 @@ export default function SalaryLoanForm() {
   const StepComponent = steps[currentStep].component;
 
   const nextStep = async () => {
-    const valid = await form.trigger();
+    // Validate only the fields in the current step
+    const fields = stepFields[currentStep] || [];
+    const valid = await form.trigger(fields as any);
     if (valid) setCurrentStep((s) => s + 1);
   };
 
@@ -96,36 +159,102 @@ export default function SalaryLoanForm() {
         // This will work after database schema is updated to allow null user_id
       }
 
-      // Handle file uploads
-      const uploadFile = async (fileList: FileList | File[], path: string) => {
-        if (!fileList || fileList.length === 0) return undefined;
-        const file = fileList[0];
-        const { data, error } = await supabase.storage.from("documents").upload(`documents/${path}/${file.name}`, file, { upsert: true });
-        if (error) throw error;
-        return data?.path;
+      // Handle file uploads (best-effort: do not block submit on storage errors)
+      const uploadFile = async (fileList: FileList | File[] | undefined, folder: string) => {
+        try {
+          if (!fileList || ("length" in fileList && fileList.length === 0)) return undefined;
+          const file = (fileList as any)[0] as File;
+          // Use a safe object key inside the 'documents' bucket (no bucket name in key)
+          const safeName = `${Date.now()}_${file.name}`.replace(/\s+/g, '_');
+          const key = `${folder}/${safeName}`;
+          const { data, error } = await supabase
+            .storage
+            .from('documents')
+            .upload(key, file, { upsert: true });
+          if (error) throw error;
+          return data?.path ?? key;
+        } catch (err: any) {
+          console.warn('Upload skipped due to storage error (continuing without this file)', {
+            folder,
+            error: err?.message || err,
+          });
+          return undefined;
+        }
       };
       const uploads = {
-        idCopy: await uploadFile(values.idCopy, "idCopy"),
-        proofOfResidence: await uploadFile(values.proofOfResidence, "proofOfResidence"),
-        payslip: await uploadFile(values.payslip, "payslip"),
-        bankStatements: await uploadFile(values.bankStatements, "bankStatements"),
-        employerLetter: await uploadFile(values.employerLetter, "employerLetter"),
-        photos: await uploadFile(values.photos, "photos"),
+        idCopy: await uploadFile(values.idCopy, 'idCopy'),
+        proofOfResidence: await uploadFile(values.proofOfResidence, 'proofOfResidence'),
+        payslip: await uploadFile(values.payslip, 'payslip'),
+        bankStatements: await uploadFile(values.bankStatements, 'bankStatements'),
+        employerLetter: await uploadFile(values.employerLetter, 'employerLetter'),
+        photos: await uploadFile(values.photos, 'photos'),
       };
-      // Prepare application data
+      // Prepare application data (snake_case for DB columns)
       const applicationData = {
-        ...values,
-        ...uploads,
         user_id: session?.user?.id || null,
         submitted_at: new Date().toISOString(),
         status: "submitted",
-      };
+
+        // I. Personal Information
+        full_name: values.fullName,
+        national_id: values.nationalId,
+        date_of_birth: values.dateOfBirth,
+        gender: values.gender,
+        residential_address: values.residentialAddress,
+        email: values.email,
+        cell_number: values.cellNumber,
+        marital_status: values.maritalStatus,
+        dependents: values.dependents,
+        education_level: values.educationLevel,
+
+        // II. Employment Details
+        employer_name: values.employerName,
+        employer_address: values.employerAddress,
+        department: values.department,
+        employee_number: values.employeeNumber,
+        job_title: values.jobTitle,
+        employment_start_date: values.employmentStartDate,
+        employment_status: values.employmentStatus,
+        hr_name: values.hrName,
+        hr_number: values.hrNumber,
+
+        // III. Financial Information
+        gross_salary: values.grossSalary,
+        net_salary: values.netSalary,
+        other_income: values.otherIncome ?? null,
+        household_expenses: values.householdExpenses,
+        debts: values.debts ?? null,
+
+        // IV. Loan Details
+        loan_amount: values.loanAmount,
+        loan_purpose: values.loanPurpose,
+        repayment_period: values.repaymentPeriod,
+        repayment_frequency: values.repaymentFrequency,
+
+        // V. Documents (storage object paths)
+        id_copy: uploads.idCopy ?? null,
+        proof_of_residence: uploads.proofOfResidence ?? null,
+        payslip: uploads.payslip ?? null,
+        bank_statements: uploads.bankStatements ?? null,
+        employer_letter: uploads.employerLetter ?? null,
+        photos: uploads.photos ?? null,
+
+        // Declarations
+        declaration_accepted: values.declarationAccepted,
+        guarantee_accepted: values.guaranteeAccepted,
+        voluntary_surrender_accepted: values.voluntarySurrenderAccepted,
+        power_of_attorney_accepted: values.powerOfAttorneyAccepted,
+        affidavit_accepted: values.affidavitAccepted,
+        agreement_accepted: values.agreementAccepted,
+      } as Record<string, any>;
+
       // Save to Supabase without returning rows (avoids SELECT under RLS)
       const { error } = await supabase
         .from("salary_loan_applications")
         .insert([applicationData]);
       if (error) throw error;
-      setIsSubmitted(true);
+      // Redirect to dashboard on success
+      navigate("/dashboard");
     } catch (e) {
       const err: any = e;
       const message = err?.message || err?.error?.message || 'Failed to submit application';

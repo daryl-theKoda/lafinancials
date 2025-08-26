@@ -17,7 +17,7 @@ import {
 } from './loan-form';
 import { CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
 const formSchema = z.object({
@@ -100,7 +100,6 @@ const steps = [
 
 export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplicationFormProps) {
   const navigate = useNavigate();
-  const supabase = createClient();
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -191,15 +190,15 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
     }
   }, [form, loanType, toast]);
 
-  if (loanType !== 'personal' && loanType !== 'salary') {
-    onError?.(new Error('This form is for personal loan applications only'));
+  if (!['personal', 'business', 'salary'].includes(loanType)) {
+    onError?.(new Error('Invalid loan type specified'));
     navigate('/apply');
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
         <div className="bg-blue-50 p-6 rounded-lg max-w-md w-full">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Incorrect Loan Type</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Loan Type</h2>
           <p className="text-gray-600 mb-6">
-            This form is for personal loan applications only. Please return to the loans page.
+            The specified loan type is not valid. Please return to the loans page.
           </p>
           <Button
             onClick={() => navigate('/loans')}
@@ -242,10 +241,16 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
 
   // Combined onSubmit function with file uploads and database save
   const onSubmit = async (formData: FormData) => {
+    console.log('Form submission started', { formData });
     try {
       // Get session if available; allow anonymous submissions
-      const { data: sessionData } = await supabase.auth.getSession();
-      const session = sessionData.session;
+      console.log('Getting session...');
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+      }
+      const session = sessionData?.session;
+      console.log('Session:', session ? 'Authenticated' : 'Anonymous');
 
       // Upload files if they exist
       const uploads: Promise<Record<string, string>>[] = [];
@@ -338,11 +343,17 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
         applicationData.user_id = null;
       }
       
-      const { error } = await supabase
+      console.log('Submitting application data:', applicationData);
+      const { data, error } = await supabase
         .from('loan_applications')
-        .insert([applicationData]);
+        .insert([applicationData])
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
+      console.log('Submission successful, response:', data);
 
       // Mark as submitted and trigger success callback
       setIsSubmitted(true);
@@ -557,21 +568,26 @@ export function LoanApplicationForm({ loanType, onSuccess, onError }: LoanApplic
                       Previous
                     </Button>
                     
-                    <Button
-                      type={currentStep === steps.length ? 'submit' : 'button'}
-                      variant={currentStep === steps.length ? 'accent' : 'default'}
-                      onClick={currentStep === steps.length ? undefined : nextStep}
-                      className="flex items-center gap-2"
-                    >
-                      {currentStep === steps.length ? (
-                        'Submit Application'
-                      ) : (
-                        <>
-                          Next
-                          <ArrowRight className="h-4 w-4" />
-                        </>
-                      )}
-                    </Button>
+                    {currentStep < steps.length ? (
+                      <Button
+                        type="button"
+                        variant="default"
+                        onClick={nextStep}
+                        className="flex items-center gap-2"
+                      >
+                        Next
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        variant="accent"
+                        className="flex items-center gap-2"
+                        disabled={form.formState.isSubmitting}
+                      >
+                        {form.formState.isSubmitting ? 'Submitting...' : 'Submit Application'}
+                      </Button>
+                    )}
                   </div>
                 </form>
               </Form>

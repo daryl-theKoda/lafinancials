@@ -24,7 +24,7 @@ import {
   ArrowLeft,
   Shield
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { Link } from "react-router-dom";
 import AdminManagement from "@/components/AdminManagement";
 import { useAuth } from "@/contexts/AuthContext";

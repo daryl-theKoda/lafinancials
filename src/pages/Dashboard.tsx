@@ -17,7 +17,7 @@ import {
   Download,
   MessageCircle
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { Link } from "react-router-dom";
 import LoanPayments from "@/components/LoanPayments";
 import ChatBot from "@/components/ChatBot";
@@ -83,7 +83,7 @@ const Dashboard = () => {
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (profileError && profileError.code !== 'PGRST116') {
         console.error("Profile error:", profileError);
@@ -91,32 +91,86 @@ const Dashboard = () => {
         setProfile(profileData);
       }
 
-      // Fetch applications (include anonymous ones by matching email)
+      // Fetch applications from both tables (prefer explicit queries over OR to avoid PostgREST 400s)
       const { data: authUserData } = await supabase.auth.getUser();
       const userEmail = authUserData?.user?.email || null;
 
-      let appsQuery = supabase
-        .from('loan_applications')
+      // Salary applications: query by user_id and (optionally) by email, then merge unique IDs
+      const salaryByUserReq = supabase
+        .from('salary_loan_applications')
         .select('*')
-        .order('submitted_at', { ascending: false });
+        .eq('user_id', userId);
+      const salaryByEmailReq = userEmail
+        ? supabase
+            .from('salary_loan_applications')
+            .select('*')
+            .eq('email', userEmail)
+        : null;
 
-      if (userEmail) {
-        // Include rows where user_id matches OR email_address matches
-        // Note: or() expects a comma-separated filter expression
-        appsQuery = appsQuery.or(`user_id.eq.${userId},email_address.eq.${userEmail}`);
-      } else {
-        // Fallback to user_id only
-        appsQuery = appsQuery.eq('user_id', userId);
+      // Business applications: query by user_id and (optionally) by business_email, then merge unique IDs
+      const businessByUserReq = supabase
+        .from('business_loan_applications')
+        .select('*')
+        .eq('user_id', userId);
+      const businessByEmailReq = userEmail
+        ? supabase
+            .from('business_loan_applications')
+            .select('*')
+            .eq('business_email', userEmail)
+        : null;
+
+      const [salaryUserRes, salaryEmailRes, businessUserRes, businessEmailRes] = await Promise.all([
+        salaryByUserReq,
+        salaryByEmailReq ?? Promise.resolve({ data: [], error: null } as any),
+        businessByUserReq,
+        businessByEmailReq ?? Promise.resolve({ data: [], error: null } as any),
+      ]);
+
+      // Log specific errors if any (helps pinpoint 400s)
+      if (salaryUserRes?.error) console.warn('Salary by user_id error:', salaryUserRes.error);
+      if (salaryEmailRes?.error) console.warn('Salary by email error:', salaryEmailRes.error);
+      if (businessUserRes?.error) console.warn('Business by user_id error:', businessUserRes.error);
+      if (businessEmailRes?.error) console.warn('Business by email error:', businessEmailRes.error);
+
+      // Merge and de-duplicate by id
+      const salaryRows = ([...(salaryUserRes?.data || []), ...(salaryEmailRes?.data || [])] as any[]);
+      const businessRows = ([...(businessUserRes?.data || []), ...(businessEmailRes?.data || [])] as any[]);
+      const uniqById = (rows: any[]) => Array.from(new Map(rows.map(r => [r.id, r])).values());
+
+      const salaryRes = { data: uniqById(salaryRows), error: null as any };
+      const businessRes = { data: uniqById(businessRows), error: null as any };
+
+      if (salaryRes.error) {
+        console.warn('Salary applications fetch error:', salaryRes.error);
+      }
+      if (businessRes.error) {
+        console.warn('Business applications fetch error:', businessRes.error);
       }
 
-      const { data: appData, error: appError } = await appsQuery;
+      // Client-side sort by submitted_at if available; fallback to created_at
+      const getTime = (r: any) => new Date(r.submitted_at || r.created_at || 0).getTime();
+      const salaryItems = (salaryRes.data || []).sort((a: any, b: any) => getTime(b) - getTime(a)).map((r: any) => ({
+        id: r.id,
+        loan_type: 'salary',
+        loan_amount: r.loan_amount ?? 0,
+        status: r.status || 'submitted',
+        submitted_at: r.submitted_at || r.created_at || new Date().toISOString(),
+        full_name: r.full_name || r.applicant_name || '',
+      })) as LoanApplication[];
 
-      if (appError) {
-        toast.error("Failed to fetch applications");
-        console.error(appError);
-      } else {
-        setApplications(appData || []);
-      }
+      const businessItems = (businessRes.data || []).sort((a: any, b: any) => getTime(b) - getTime(a)).map((r: any) => ({
+        id: r.id,
+        loan_type: 'business',
+        loan_amount: r.loan_amount ?? 0,
+        status: r.status || 'submitted',
+        submitted_at: r.submitted_at || r.created_at || new Date().toISOString(),
+        full_name: '',
+      })) as LoanApplication[];
+
+      const combined = [...salaryItems, ...businessItems].sort(
+        (a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
+      );
+      setApplications(combined);
     } catch (error) {
       toast.error("An error occurred while fetching data");
     } finally {

@@ -9,7 +9,17 @@ export function LoanDetailsStep() {
       <FormField control={form.control} name="loanAmount" render={({ field }) => (
         <FormItem>
           <FormLabel>Loan Amount Required *</FormLabel>
-          <FormControl><Input type="number" min={1} step="0.01" placeholder="$0.00" {...field} /></FormControl>
+          <FormControl>
+            <Input
+              type="number"
+              min={1}
+              step="0.01"
+              placeholder="$0.00"
+              {...field}
+              value={field.value === undefined || Number.isNaN(field.value) ? '' : field.value}
+              onChange={(e) => field.onChange(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+            />
+          </FormControl>
           <FormMessage />
         </FormItem>
       )} />

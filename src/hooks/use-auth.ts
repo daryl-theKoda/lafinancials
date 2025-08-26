@@ -1,7 +1,7 @@
 // src/hooks/use-auth.ts
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 type User = {
   id: string;
@@ -14,7 +14,6 @@ type User = {
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
   const navigate = useNavigate();
 
   useEffect(() => {

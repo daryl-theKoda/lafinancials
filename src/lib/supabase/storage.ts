@@ -1,4 +1,4 @@
-import { createClient } from "./client";
+import { supabase } from "./client";
 
 type FileWithPath = File & { path?: string };
 
@@ -7,7 +7,7 @@ export const uploadFile = async (
   path: string,
   bucket = "business-loan-documents"
 ): Promise<{ url: string; path: string }> => {
-  const supabase = createClient();
+  // using singleton supabase
   const fileExt = file.name.split('.').pop();
   const fileName = `${path}/${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
   
@@ -38,7 +38,7 @@ export const deleteFile = async (
   filePath: string,
   bucket = "business-loan-documents"
 ): Promise<void> => {
-  const supabase = createClient();
+  // using singleton supabase
   const { error } = await supabase.storage
     .from(bucket)
     .remove([filePath]);
@@ -69,7 +69,7 @@ export const getFileUrl = (
   filePath: string,
   bucket = "business-loan-documents"
 ): string => {
-  const supabase = createClient();
+  // using singleton supabase
   const { data: { publicUrl } } = supabase.storage
     .from(bucket)
     .getPublicUrl(filePath);
@@ -81,7 +81,7 @@ export const downloadFile = async (
   filePath: string,
   bucket = "business-loan-documents"
 ): Promise<Blob> => {
-  const supabase = createClient();
+  // using singleton supabase
   const { data, error } = await supabase.storage
     .from(bucket)
     .download(filePath);

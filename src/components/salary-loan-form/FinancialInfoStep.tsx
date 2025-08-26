@@ -9,14 +9,34 @@ export function FinancialInfoStep() {
       <FormField control={form.control} name="grossSalary" render={({ field }) => (
         <FormItem>
           <FormLabel>Gross Monthly Salary (before deductions) *</FormLabel>
-          <FormControl><Input type="number" min={0} step="0.01" placeholder="$0.00" {...field} /></FormControl>
+          <FormControl>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="$0.00"
+              {...field}
+              value={field.value === undefined || Number.isNaN(field.value) ? '' : field.value}
+              onChange={(e) => field.onChange(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+            />
+          </FormControl>
           <FormMessage />
         </FormItem>
       )} />
       <FormField control={form.control} name="netSalary" render={({ field }) => (
         <FormItem>
           <FormLabel>Net Monthly Salary (take-home pay) *</FormLabel>
-          <FormControl><Input type="number" min={0} step="0.01" placeholder="$0.00" {...field} /></FormControl>
+          <FormControl>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="$0.00"
+              {...field}
+              value={field.value === undefined || Number.isNaN(field.value) ? '' : field.value}
+              onChange={(e) => field.onChange(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+            />
+          </FormControl>
           <FormMessage />
         </FormItem>
       )} />
@@ -30,7 +50,17 @@ export function FinancialInfoStep() {
       <FormField control={form.control} name="householdExpenses" render={({ field }) => (
         <FormItem className="md:col-span-2">
           <FormLabel>Total Monthly Household Expenses *</FormLabel>
-          <FormControl><Input type="number" min={0} step="0.01" placeholder="$0.00" {...field} /></FormControl>
+          <FormControl>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="$0.00"
+              {...field}
+              value={field.value === undefined || Number.isNaN(field.value) ? '' : field.value}
+              onChange={(e) => field.onChange(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+            />
+          </FormControl>
           <FormMessage />
         </FormItem>
       )} />
@@ -49,7 +79,17 @@ export function FinancialInfoStep() {
         <FormField control={form.control} name="debts.0.monthlyRepayment" render={({ field }) => (
           <FormItem>
             <FormLabel>Monthly Repayment</FormLabel>
-            <FormControl><Input type="number" min={0} step="0.01" placeholder="$0.00" {...field} /></FormControl>
+            <FormControl>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                placeholder="$0.00"
+                {...field}
+                value={field.value === undefined || Number.isNaN(field.value) ? '' : field.value}
+                onChange={(e) => field.onChange(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )} />
@@ -63,7 +103,17 @@ export function FinancialInfoStep() {
         <FormField control={form.control} name="debts.1.monthlyRepayment" render={({ field }) => (
           <FormItem>
             <FormLabel>Monthly Repayment</FormLabel>
-            <FormControl><Input type="number" min={0} step="0.01" placeholder="$0.00" {...field} /></FormControl>
+            <FormControl>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                placeholder="$0.00"
+                {...field}
+                value={field.value === undefined || Number.isNaN(field.value) ? '' : field.value}
+                onChange={(e) => field.onChange(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )} />

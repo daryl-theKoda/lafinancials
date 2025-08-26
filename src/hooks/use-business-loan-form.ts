@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAuth } from './use-auth'
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { uploadFile } from '@/lib/supabase/storage';
 import { BusinessLoanFormValues } from '@/components/business-loan-form/schema';
 
@@ -10,7 +10,6 @@ export const useBusinessLoanForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [applicationNumber, setApplicationNumber] = useState('');
-  const supabase = createClient();
 
   const form = useForm<BusinessLoanFormValues>();
 
