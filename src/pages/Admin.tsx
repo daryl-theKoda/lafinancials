@@ -44,14 +44,31 @@ interface LoanApplication {
   admin_notes?: string;
 }
 
+interface BusinessLoanApplication {
+  id: string;
+  legal_business_name: string;
+  business_email: string;
+  business_phone: string;
+  business_sector: string;
+  annual_turnover: number;
+  loan_amount: number;
+  loan_purpose: string;
+  status: string;
+  submitted_at: string;
+  user_id: string;
+}
+
 const Admin = () => {
   const { user, isAdmin, signOut } = useAuth();
   const [applications, setApplications] = useState<LoanApplication[]>([]);
+  const [businessApplications, setBusinessApplications] = useState<BusinessLoanApplication[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<LoanApplication | null>(null);
+  const [selectedBusinessApplication, setSelectedBusinessApplication] = useState<BusinessLoanApplication | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [statusUpdate, setStatusUpdate] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [activeTab, setActiveTab] = useState("personal");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,22 +86,43 @@ const Admin = () => {
 
   const fetchApplications = async () => {
     try {
-      let query = supabase
+      // Fetch personal loan applications
+      let personalQuery = supabase
         .from('loan_applications')
         .select('*')
         .order('submitted_at', { ascending: false });
 
       if (filterStatus !== "all") {
-        query = query.eq('status', filterStatus);
+        personalQuery = personalQuery.eq('status', filterStatus);
       }
 
-      const { data, error } = await query;
+      // Fetch business loan applications
+      let businessQuery = supabase
+        .from('business_loan_applications')
+        .select('*')
+        .order('submitted_at', { ascending: false });
 
-      if (error) {
-        toast.error("Failed to fetch applications");
-        console.error(error);
+      if (filterStatus !== "all") {
+        businessQuery = businessQuery.eq('status', filterStatus);
+      }
+
+      const [personalResult, businessResult] = await Promise.all([
+        personalQuery,
+        businessQuery
+      ]);
+
+      if (personalResult.error) {
+        toast.error("Failed to fetch personal loan applications");
+        console.error(personalResult.error);
       } else {
-        setApplications(data || []);
+        setApplications(personalResult.data || []);
+      }
+
+      if (businessResult.error) {
+        toast.error("Failed to fetch business loan applications");
+        console.error(businessResult.error);
+      } else {
+        setBusinessApplications(businessResult.data || []);
       }
     } catch (error) {
       toast.error("An error occurred while fetching applications");
@@ -94,20 +132,34 @@ const Admin = () => {
   };
 
   const handleStatusUpdate = async () => {
-    if (!selectedApplication || !statusUpdate) {
+    if ((!selectedApplication && !selectedBusinessApplication) || !statusUpdate) {
       toast.error("Please select a status");
       return;
     }
 
     try {
-      const { error } = await supabase
-        .from('loan_applications')
-        .update({
-          status: statusUpdate,
-          admin_notes: adminNotes,
-          reviewed_at: new Date().toISOString()
-        })
-        .eq('id', selectedApplication.id);
+      let error;
+      
+      if (selectedApplication) {
+        const { error: personalError } = await supabase
+          .from('loan_applications')
+          .update({
+            status: statusUpdate,
+            admin_notes: adminNotes,
+            reviewed_at: new Date().toISOString()
+          })
+          .eq('id', selectedApplication.id);
+        error = personalError;
+      } else if (selectedBusinessApplication) {
+        const { error: businessError } = await supabase
+          .from('business_loan_applications')
+          .update({
+            status: statusUpdate,
+            submitted_at: new Date().toISOString()
+          })
+          .eq('id', selectedBusinessApplication.id);
+        error = businessError;
+      }
 
       if (error) {
         toast.error("Failed to update application");
@@ -115,6 +167,7 @@ const Admin = () => {
       } else {
         toast.success("Application updated successfully");
         setSelectedApplication(null);
+        setSelectedBusinessApplication(null);
         setStatusUpdate("");
         setAdminNotes("");
         fetchApplications();
@@ -169,10 +222,10 @@ const Admin = () => {
   };
 
   const stats = {
-    total: applications.length,
-    pending: applications.filter(app => app.status === 'pending').length,
-    approved: applications.filter(app => app.status === 'approved').length,
-    rejected: applications.filter(app => app.status === 'rejected').length,
+    total: applications.length + businessApplications.length,
+    pending: applications.filter(app => app.status === 'pending').length + businessApplications.filter(app => app.status === 'pending').length,
+    approved: applications.filter(app => app.status === 'approved').length + businessApplications.filter(app => app.status === 'approved').length,
+    rejected: applications.filter(app => app.status === 'rejected').length + businessApplications.filter(app => app.status === 'rejected').length,
   };
 
   if (isLoading) {
@@ -280,7 +333,7 @@ const Admin = () => {
               </Card>
             </div>
 
-            {/* Filters and Applications */}
+            {/* Application Type Tabs */}
             <Card className="shadow-medium">
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -305,21 +358,30 @@ const Admin = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="personal">Personal Loans ({applications.length})</TabsTrigger>
+                    <TabsTrigger value="business">Business Loans ({businessApplications.length})</TabsTrigger>
+                  </TabsList>
+                </Tabs>
               </CardHeader>
               <CardContent>
-                {applications.length === 0 ? (
-                  <div className="text-center py-8">
-                    <FileText className="w-16 h-16 mx-auto text-finance-gray mb-4" />
-                    <h3 className="text-lg font-semibold text-finance-navy mb-2">
-                      No Applications Found
-                    </h3>
-                    <p className="text-finance-gray">
-                      {filterStatus === "all" ? "No loan applications have been submitted yet." : `No applications with status "${filterStatus}".`}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {applications.map((application) => (
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsContent value="personal">
+                    {applications.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="w-16 h-16 mx-auto text-finance-gray mb-4" />
+                        <h3 className="text-lg font-semibold text-finance-navy mb-2">
+                          No Personal Loan Applications Found
+                        </h3>
+                        <p className="text-finance-gray">
+                          {filterStatus === "all" ? "No personal loan applications have been submitted yet." : `No personal loan applications with status "${filterStatus}".`}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {applications.map((application) => (
                       <div
                         key={application.id}
                         className="border rounded-lg p-4 hover:shadow-soft transition-shadow"
@@ -342,18 +404,19 @@ const Admin = () => {
                             </Badge>
                             <Dialog>
                               <DialogTrigger asChild>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => {
-                                    setSelectedApplication(application);
-                                    setStatusUpdate(application.status);
-                                    setAdminNotes(application.admin_notes || "");
-                                  }}
-                                >
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  Review
-                                </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedApplication(application);
+                                      setSelectedBusinessApplication(null);
+                                      setStatusUpdate(application.status);
+                                      setAdminNotes(application.admin_notes || "");
+                                    }}
+                                  >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Review
+                                  </Button>
                               </DialogTrigger>
                               <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                                 <DialogHeader>
@@ -437,9 +500,138 @@ const Admin = () => {
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="business">
+                    {businessApplications.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="w-16 h-16 mx-auto text-finance-gray mb-4" />
+                        <h3 className="text-lg font-semibold text-finance-navy mb-2">
+                          No Business Loan Applications Found
+                        </h3>
+                        <p className="text-finance-gray">
+                          {filterStatus === "all" ? "No business loan applications have been submitted yet." : `No business loan applications with status "${filterStatus}".`}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {businessApplications.map((application) => (
+                          <div
+                            key={application.id}
+                            className="border rounded-lg p-4 hover:shadow-soft transition-shadow"
+                          >
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center space-x-3">
+                                {getStatusIcon(application.status)}
+                                <div>
+                                  <h3 className="font-semibold text-finance-navy">
+                                    {application.legal_business_name}
+                                  </h3>
+                                  <p className="text-sm text-finance-gray">
+                                    Business Loan - {application.business_sector}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Badge className={getStatusColor(application.status)}>
+                                  {application.status.replace('_', ' ').toUpperCase()}
+                                </Badge>
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={() => {
+                                        setSelectedBusinessApplication(application);
+                                        setSelectedApplication(null);
+                                        setStatusUpdate(application.status);
+                                        setAdminNotes("");
+                                      }}
+                                    >
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      Review
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                                    <DialogHeader>
+                                      <DialogTitle>Business Loan Application Review - {application.legal_business_name}</DialogTitle>
+                                    </DialogHeader>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                      <div className="space-y-4">
+                                        <h4 className="font-semibold text-finance-navy">Business Details</h4>
+                                        <div className="space-y-2 text-sm">
+                                          <div><strong>Business Name:</strong> {application.legal_business_name}</div>
+                                          <div><strong>Sector:</strong> {application.business_sector}</div>
+                                          <div><strong>Email:</strong> {application.business_email}</div>
+                                          <div><strong>Phone:</strong> {application.business_phone}</div>
+                                          <div><strong>Annual Turnover:</strong> ZWL {Number(application.annual_turnover || 0).toLocaleString()}</div>
+                                          <div><strong>Loan Amount:</strong> ZWL {Number(application.loan_amount || 0).toLocaleString()}</div>
+                                          <div><strong>Purpose:</strong> {application.loan_purpose}</div>
+                                          <div><strong>Submitted:</strong> {application.submitted_at ? new Date(application.submitted_at).toLocaleString() : 'Not available'}</div>
+                                        </div>
+                                      </div>
+
+                                      <div className="space-y-4">
+                                        <h4 className="font-semibold text-finance-navy">Update Application</h4>
+                                        
+                                        <div>
+                                          <Label htmlFor="status">Status</Label>
+                                          <Select value={statusUpdate} onValueChange={setStatusUpdate}>
+                                            <SelectTrigger>
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="pending">Pending</SelectItem>
+                                              <SelectItem value="under_review">Under Review</SelectItem>
+                                              <SelectItem value="approved">Approved</SelectItem>
+                                              <SelectItem value="rejected">Rejected</SelectItem>
+                                              <SelectItem value="disbursed">Disbursed</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+
+                                        <Button 
+                                          onClick={handleStatusUpdate}
+                                          className="w-full bg-gradient-primary"
+                                        >
+                                          <Edit className="w-4 h-4 mr-2" />
+                                          Update Application
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-finance-gray">
+                              <div>
+                                <span className="font-medium">Amount:</span><br />
+                                ZWL {Number(application.loan_amount || 0).toLocaleString()}
+                              </div>
+                              <div>
+                                <span className="font-medium">Sector:</span><br />
+                                {application.business_sector}
+                              </div>
+                              <div>
+                                <span className="font-medium">Purpose:</span><br />
+                                {application.loan_purpose || 'Not specified'}
+                              </div>
+                              <div>
+                                <span className="font-medium">Submitted:</span><br />
+                                {application.submitted_at ? new Date(application.submitted_at).toLocaleDateString() : 'N/A'}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </TabsContent>
