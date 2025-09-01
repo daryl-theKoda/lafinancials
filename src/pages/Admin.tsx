@@ -22,7 +22,8 @@ import {
   XCircle,
   BarChart3,
   ArrowLeft,
-  Shield
+  Shield,
+  Download
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { Link } from "react-router-dom";
@@ -42,6 +43,7 @@ interface LoanApplication {
   employment_status: string;
   monthly_income: number;
   admin_notes?: string;
+  [key: string]: any; // Allow additional fields
 }
 
 interface BusinessLoanApplication {
@@ -56,14 +58,32 @@ interface BusinessLoanApplication {
   status: string;
   submitted_at: string;
   user_id: string;
+  [key: string]: any; // Allow additional fields
+}
+
+interface SalaryLoanApplication {
+  id: string;
+  full_name: string;
+  email: string;
+  cell_number: string;
+  employer_name: string;
+  gross_salary: number;
+  loan_amount: number;
+  loan_purpose: string;
+  status: string;
+  submitted_at: string;
+  user_id: string;
+  [key: string]: any; // Allow additional fields
 }
 
 const Admin = () => {
   const { user, isAdmin, signOut } = useAuth();
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [businessApplications, setBusinessApplications] = useState<BusinessLoanApplication[]>([]);
+  const [salaryApplications, setSalaryApplications] = useState<SalaryLoanApplication[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<LoanApplication | null>(null);
   const [selectedBusinessApplication, setSelectedBusinessApplication] = useState<BusinessLoanApplication | null>(null);
+  const [selectedSalaryApplication, setSelectedSalaryApplication] = useState<SalaryLoanApplication | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [statusUpdate, setStatusUpdate] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
@@ -106,9 +126,20 @@ const Admin = () => {
         businessQuery = businessQuery.eq('status', filterStatus);
       }
 
-      const [personalResult, businessResult] = await Promise.all([
+      // Fetch salary loan applications
+      let salaryQuery = supabase
+        .from('salary_loan_applications')
+        .select('*')
+        .order('submitted_at', { ascending: false });
+
+      if (filterStatus !== "all") {
+        salaryQuery = salaryQuery.eq('status', filterStatus);
+      }
+
+      const [personalResult, businessResult, salaryResult] = await Promise.all([
         personalQuery,
-        businessQuery
+        businessQuery,
+        salaryQuery
       ]);
 
       if (personalResult.error) {
@@ -124,6 +155,13 @@ const Admin = () => {
       } else {
         setBusinessApplications(businessResult.data || []);
       }
+
+      if (salaryResult.error) {
+        toast.error("Failed to fetch salary loan applications");
+        console.error(salaryResult.error);
+      } else {
+        setSalaryApplications(salaryResult.data || []);
+      }
     } catch (error) {
       toast.error("An error occurred while fetching applications");
     } finally {
@@ -132,7 +170,7 @@ const Admin = () => {
   };
 
   const handleStatusUpdate = async () => {
-    if ((!selectedApplication && !selectedBusinessApplication) || !statusUpdate) {
+    if ((!selectedApplication && !selectedBusinessApplication && !selectedSalaryApplication) || !statusUpdate) {
       toast.error("Please select a status");
       return;
     }
@@ -159,6 +197,15 @@ const Admin = () => {
           })
           .eq('id', selectedBusinessApplication.id);
         error = businessError;
+      } else if (selectedSalaryApplication) {
+        const { error: salaryError } = await supabase
+          .from('salary_loan_applications')
+          .update({
+            status: statusUpdate,
+            submitted_at: new Date().toISOString()
+          })
+          .eq('id', selectedSalaryApplication.id);
+        error = salaryError;
       }
 
       if (error) {
@@ -168,6 +215,7 @@ const Admin = () => {
         toast.success("Application updated successfully");
         setSelectedApplication(null);
         setSelectedBusinessApplication(null);
+        setSelectedSalaryApplication(null);
         setStatusUpdate("");
         setAdminNotes("");
         fetchApplications();
@@ -222,10 +270,16 @@ const Admin = () => {
   };
 
   const stats = {
-    total: applications.length + businessApplications.length,
-    pending: applications.filter(app => app.status === 'pending').length + businessApplications.filter(app => app.status === 'pending').length,
-    approved: applications.filter(app => app.status === 'approved').length + businessApplications.filter(app => app.status === 'approved').length,
-    rejected: applications.filter(app => app.status === 'rejected').length + businessApplications.filter(app => app.status === 'rejected').length,
+    total: applications.length + businessApplications.length + salaryApplications.length,
+    pending: applications.filter(app => app.status === 'pending').length + 
+             businessApplications.filter(app => app.status === 'pending').length + 
+             salaryApplications.filter(app => app.status === 'pending').length,
+    approved: applications.filter(app => app.status === 'approved').length + 
+              businessApplications.filter(app => app.status === 'approved').length + 
+              salaryApplications.filter(app => app.status === 'approved').length,
+    rejected: applications.filter(app => app.status === 'rejected').length + 
+              businessApplications.filter(app => app.status === 'rejected').length + 
+              salaryApplications.filter(app => app.status === 'rejected').length,
   };
 
   if (isLoading) {
@@ -360,9 +414,10 @@ const Admin = () => {
                 </div>
                 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="personal">Personal Loans ({applications.length})</TabsTrigger>
                     <TabsTrigger value="business">Business Loans ({businessApplications.length})</TabsTrigger>
+                    <TabsTrigger value="salary">Salary Loans ({salaryApplications.length})</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </CardHeader>
@@ -404,19 +459,20 @@ const Admin = () => {
                             </Badge>
                             <Dialog>
                               <DialogTrigger asChild>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    onClick={() => {
-                                      setSelectedApplication(application);
-                                      setSelectedBusinessApplication(null);
-                                      setStatusUpdate(application.status);
-                                      setAdminNotes(application.admin_notes || "");
-                                    }}
-                                  >
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    Review
-                                  </Button>
+                                   <Button 
+                                     variant="outline" 
+                                     size="sm"
+                                     onClick={() => {
+                                       setSelectedApplication(application);
+                                       setSelectedBusinessApplication(null);
+                                       setSelectedSalaryApplication(null);
+                                       setStatusUpdate(application.status);
+                                       setAdminNotes(application.admin_notes || "");
+                                     }}
+                                   >
+                                     <Eye className="w-4 h-4 mr-2" />
+                                     Review
+                                   </Button>
                               </DialogTrigger>
                               <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                                 <DialogHeader>
@@ -544,12 +600,13 @@ const Admin = () => {
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => {
-                                        setSelectedBusinessApplication(application);
-                                        setSelectedApplication(null);
-                                        setStatusUpdate(application.status);
-                                        setAdminNotes("");
-                                      }}
+                                       onClick={() => {
+                                         setSelectedBusinessApplication(application);
+                                         setSelectedApplication(null);
+                                         setSelectedSalaryApplication(null);
+                                         setStatusUpdate(application.status);
+                                         setAdminNotes("");
+                                       }}
                                     >
                                       <Eye className="w-4 h-4 mr-2" />
                                       Review
@@ -616,6 +673,199 @@ const Admin = () => {
                               <div>
                                 <span className="font-medium">Sector:</span><br />
                                 {application.business_sector}
+                              </div>
+                              <div>
+                                <span className="font-medium">Purpose:</span><br />
+                                {application.loan_purpose || 'Not specified'}
+                              </div>
+                              <div>
+                                <span className="font-medium">Submitted:</span><br />
+                                {application.submitted_at ? new Date(application.submitted_at).toLocaleDateString() : 'N/A'}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="salary">
+                    {salaryApplications.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="w-16 h-16 mx-auto text-finance-gray mb-4" />
+                        <h3 className="text-lg font-semibold text-finance-navy mb-2">
+                          No Salary Loan Applications Found
+                        </h3>
+                        <p className="text-finance-gray">
+                          {filterStatus === "all" ? "No salary loan applications have been submitted yet." : `No salary loan applications with status "${filterStatus}".`}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {salaryApplications.map((application) => (
+                          <div
+                            key={application.id}
+                            className="border rounded-lg p-4 hover:shadow-soft transition-shadow"
+                          >
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center space-x-3">
+                                {getStatusIcon(application.status || 'pending')}
+                                <div>
+                                  <h3 className="font-semibold text-finance-navy">
+                                    {application.full_name}
+                                  </h3>
+                                  <p className="text-sm text-finance-gray">
+                                    Salary Loan - {application.employer_name}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Badge className={getStatusColor(application.status || 'pending')}>
+                                  {(application.status || 'pending').replace('_', ' ').toUpperCase()}
+                                </Badge>
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={() => {
+                                        setSelectedSalaryApplication(application);
+                                        setSelectedApplication(null);
+                                        setSelectedBusinessApplication(null);
+                                        setStatusUpdate(application.status || 'pending');
+                                        setAdminNotes("");
+                                      }}
+                                    >
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      Review
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                                    <DialogHeader>
+                                      <DialogTitle>Salary Loan Application Review - {application.full_name}</DialogTitle>
+                                    </DialogHeader>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                      <div className="space-y-4">
+                                        <h4 className="font-semibold text-finance-navy">Personal & Employment Details</h4>
+                                        <div className="space-y-2 text-sm">
+                                          <div><strong>Full Name:</strong> {application.full_name}</div>
+                                          <div><strong>National ID:</strong> {application.national_id || 'N/A'}</div>
+                                          <div><strong>Email:</strong> {application.email}</div>
+                                          <div><strong>Phone:</strong> {application.cell_number}</div>
+                                          <div><strong>Address:</strong> {application.residential_address || 'N/A'}</div>
+                                          <div><strong>Gender:</strong> {application.gender || 'N/A'}</div>
+                                          <div><strong>Date of Birth:</strong> {application.date_of_birth || 'N/A'}</div>
+                                          <div><strong>Marital Status:</strong> {application.marital_status || 'N/A'}</div>
+                                          <div><strong>Dependents:</strong> {application.dependents || 0}</div>
+                                          <div><strong>Education Level:</strong> {application.education_level || 'N/A'}</div>
+                                        </div>
+                                        
+                                        <h4 className="font-semibold text-finance-navy mt-6">Employment Information</h4>
+                                        <div className="space-y-2 text-sm">
+                                          <div><strong>Employer:</strong> {application.employer_name}</div>
+                                          <div><strong>Employer Address:</strong> {application.employer_address || 'N/A'}</div>
+                                          <div><strong>Department:</strong> {application.department || 'N/A'}</div>
+                                          <div><strong>Job Title:</strong> {application.job_title || 'N/A'}</div>
+                                          <div><strong>Employee Number:</strong> {application.employee_number || 'N/A'}</div>
+                                          <div><strong>Employment Start Date:</strong> {application.employment_start_date || 'N/A'}</div>
+                                          <div><strong>Employment Status:</strong> {application.employment_status || 'N/A'}</div>
+                                          <div><strong>HR Contact:</strong> {application.hr_name || 'N/A'} - {application.hr_number || 'N/A'}</div>
+                                        </div>
+
+                                        <h4 className="font-semibold text-finance-navy mt-6">Financial Information</h4>
+                                        <div className="space-y-2 text-sm">
+                                          <div><strong>Gross Salary:</strong> ZWL {Number(application.gross_salary || 0).toLocaleString()}</div>
+                                          <div><strong>Net Salary:</strong> ZWL {Number(application.net_salary || 0).toLocaleString()}</div>
+                                          <div><strong>Other Income:</strong> {application.other_income || 'None'}</div>
+                                          <div><strong>Household Expenses:</strong> ZWL {Number(application.household_expenses || 0).toLocaleString()}</div>
+                                          {application.debts && (
+                                            <div><strong>Existing Debts:</strong> {JSON.stringify(application.debts)}</div>
+                                          )}
+                                        </div>
+
+                                        <h4 className="font-semibold text-finance-navy mt-6">Loan Details</h4>
+                                        <div className="space-y-2 text-sm">
+                                          <div><strong>Loan Amount:</strong> ZWL {Number(application.loan_amount || 0).toLocaleString()}</div>
+                                          <div><strong>Purpose:</strong> {application.loan_purpose || 'N/A'}</div>
+                                          <div><strong>Repayment Period:</strong> {application.repayment_period || 'N/A'}</div>
+                                          <div><strong>Repayment Frequency:</strong> {application.repayment_frequency || 'N/A'}</div>
+                                          <div><strong>Submitted:</strong> {application.submitted_at ? new Date(application.submitted_at).toLocaleString() : 'Not available'}</div>
+                                        </div>
+
+                                        <h4 className="font-semibold text-finance-navy mt-6">Document Status</h4>
+                                        <div className="space-y-2 text-sm">
+                                          <div><strong>ID Copy:</strong> {application.id_copy ? 'Uploaded' : 'Not uploaded'}</div>
+                                          <div><strong>Proof of Residence:</strong> {application.proof_of_residence ? 'Uploaded' : 'Not uploaded'}</div>
+                                          <div><strong>Payslip:</strong> {application.payslip ? 'Uploaded' : 'Not uploaded'}</div>
+                                          <div><strong>Bank Statements:</strong> {application.bank_statements ? 'Uploaded' : 'Not uploaded'}</div>
+                                          <div><strong>Employer Letter:</strong> {application.employer_letter ? 'Uploaded' : 'Not uploaded'}</div>
+                                          <div><strong>Photos:</strong> {application.photos ? 'Uploaded' : 'Not uploaded'}</div>
+                                        </div>
+
+                                        {(application.id_copy || application.proof_of_residence || application.payslip || 
+                                          application.bank_statements || application.employer_letter || application.photos) && (
+                                          <div className="mt-4">
+                                            <Button variant="outline" size="sm" className="w-full">
+                                              <Download className="w-4 h-4 mr-2" />
+                                              Download All Documents
+                                            </Button>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      <div className="space-y-4">
+                                        <h4 className="font-semibold text-finance-navy">Update Application</h4>
+                                        
+                                        <div>
+                                          <Label htmlFor="status">Status</Label>
+                                          <Select value={statusUpdate} onValueChange={setStatusUpdate}>
+                                            <SelectTrigger>
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="pending">Pending</SelectItem>
+                                              <SelectItem value="under_review">Under Review</SelectItem>
+                                              <SelectItem value="approved">Approved</SelectItem>
+                                              <SelectItem value="rejected">Rejected</SelectItem>
+                                              <SelectItem value="disbursed">Disbursed</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+
+                                        <div>
+                                          <Label htmlFor="notes">Admin Notes</Label>
+                                          <Textarea
+                                            id="notes"
+                                            value={adminNotes}
+                                            onChange={(e) => setAdminNotes(e.target.value)}
+                                            placeholder="Add notes about this application..."
+                                            rows={4}
+                                          />
+                                        </div>
+
+                                        <Button 
+                                          onClick={handleStatusUpdate}
+                                          className="w-full bg-gradient-primary"
+                                        >
+                                          <Edit className="w-4 h-4 mr-2" />
+                                          Update Application
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-finance-gray">
+                              <div>
+                                <span className="font-medium">Amount:</span><br />
+                                ZWL {Number(application.loan_amount || 0).toLocaleString()}
+                              </div>
+                              <div>
+                                <span className="font-medium">Gross Salary:</span><br />
+                                ZWL {Number(application.gross_salary || 0).toLocaleString()}
                               </div>
                               <div>
                                 <span className="font-medium">Purpose:</span><br />
