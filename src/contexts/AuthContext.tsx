@@ -13,6 +13,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  isSuperUser: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -146,13 +147,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       toast({
-        title: "Success",
+        title: "Success", 
         description: "Signed in successfully!",
       });
 
       return { error: null };
     } catch (error) {
       console.error('Sign in error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred during sign in",
+        variant: "destructive",
+      });
       return { error };
     }
   };
@@ -178,6 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const isAdmin = userRole === 'admin';
+  const isSuperUser = user?.email === 'darylchibange4@gmail.com'; // Hardcoded superuser
 
   const value = {
     user,
@@ -188,6 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     isAdmin,
+    isSuperUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/lib/supabase/client";
 import { Trash2, UserPlus, Users } from "lucide-react";
 
@@ -15,6 +16,7 @@ interface AdminUser {
 }
 
 const AdminManagement = () => {
+  const { isSuperUser } = useAuth();
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -146,6 +148,14 @@ const AdminManagement = () => {
       setLoading(false);
     }
   };
+
+  if (!isSuperUser) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">Access denied. Only superusers can manage administrators.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
