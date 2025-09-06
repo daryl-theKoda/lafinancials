@@ -77,7 +77,7 @@ interface SalaryLoanApplication {
 }
 
 const Admin = () => {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, isSuperUser, signOut } = useAuth();
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [businessApplications, setBusinessApplications] = useState<BusinessLoanApplication[]>([]);
   const [salaryApplications, setSalaryApplications] = useState<SalaryLoanApplication[]>([]);
@@ -315,9 +315,14 @@ const Admin = () => {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Link>
-              <span className="text-finance-gray">
-                Welcome, Admin
-              </span>
+              <div className="text-right">
+                <div className="text-finance-gray text-sm">
+                  Welcome, {user?.user_metadata?.full_name || user?.email}
+                </div>
+                <div className="text-finance-blue text-xs font-mono">
+                  {isSuperUser ? 'Superuser' : 'Admin'} Access
+                </div>
+              </div>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
