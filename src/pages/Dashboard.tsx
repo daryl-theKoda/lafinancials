@@ -21,7 +21,7 @@ import { supabase } from "@/lib/supabase/client";
 import { Link } from "react-router-dom";
 import LoanPayments from "@/components/LoanPayments";
 import ChatBot from "@/components/ChatBot";
-import { Session , User } from "@supabase/supabase-js";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LoanApplication {
   id: string;
@@ -42,7 +42,7 @@ interface UserProfile {
 }
 
 const Dashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: authLoading, signOut } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,30 +51,14 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+    if (!authLoading) {
+      if (!user) {
         navigate("/auth");
         return;
       }
-      setUser(session.user);
-      await fetchUserData(session.user.id);
-    };
-
-    checkUser();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate("/auth");
-      } else {
-        setUser(session.user);
-        fetchUserData(session.user.id);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+      fetchUserData(user.id);
+    }
+  }, [user, authLoading, navigate]);
 
   const fetchUserData = async (userId: string) => {
     try {
@@ -180,8 +164,7 @@ const Dashboard = () => {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
-      toast.success("Signed out successfully");
+      await signOut();
       navigate("/");
     } catch (error) {
       toast.error("Error signing out");
@@ -243,7 +226,7 @@ const Dashboard = () => {
     toast.success("Application form downloaded successfully");
   };
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-finance-light to-background flex items-center justify-center">
         <div className="text-center">
