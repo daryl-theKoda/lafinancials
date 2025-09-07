@@ -34,6 +34,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
 
   useEffect(() => {
+    let roleSubscription: any = null;
+
+    const fetchUserRole = async (userId: string) => {
+      try {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        setUserRole(roleData?.role || 'user');
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+        setUserRole('user');
+      }
+    };
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -42,22 +59,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (session?.user) {
           // Fetch user role after auth state change
-          setTimeout(async () => {
-            try {
-              const { data: roleData } = await supabase
-                .from('user_roles')
-                .select('role')
-                .eq('user_id', session.user.id)
-                .maybeSingle();
-              
-              setUserRole(roleData?.role || 'user');
-            } catch (error) {
-              console.error('Error fetching user role:', error);
-              setUserRole('user');
-            }
+          setTimeout(() => {
+            fetchUserRole(session.user.id);
           }, 0);
+
+          // Set up real-time subscription for role changes
+          roleSubscription = supabase
+            .channel('user-role-changes')
+            .on(
+              'postgres_changes',
+              {
+                event: '*',
+                schema: 'public',
+                table: 'user_roles',
+                filter: `user_id=eq.${session.user.id}`,
+              },
+              (payload) => {
+                console.log('Role change detected:', payload);
+                // Refetch user role when changes occur
+                fetchUserRole(session.user.id);
+              }
+            )
+            .subscribe();
         } else {
           setUserRole(null);
+          // Unsubscribe from role changes when user logs out
+          if (roleSubscription) {
+            roleSubscription.unsubscribe();
+            roleSubscription = null;
+          }
         }
         
         setLoading(false);
@@ -71,27 +101,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (session?.user) {
         // Fetch user role for existing session
-        setTimeout(async () => {
-          try {
-            const { data: roleData } = await supabase
-              .from('user_roles')
-              .select('role')
-              .eq('user_id', session.user.id)
-              .maybeSingle();
-            
-            setUserRole(roleData?.role || 'user');
-          } catch (error) {
-            console.error('Error fetching user role:', error);
-            setUserRole('user');
-          }
+        setTimeout(() => {
+          fetchUserRole(session.user.id);
           setLoading(false);
         }, 0);
+
+        // Set up real-time subscription for existing session
+        roleSubscription = supabase
+          .channel('user-role-changes')
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'user_roles',
+              filter: `user_id=eq.${session.user.id}`,
+            },
+            (payload) => {
+              console.log('Role change detected:', payload);
+              fetchUserRole(session.user.id);
+            }
+          )
+          .subscribe();
       } else {
         setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (roleSubscription) {
+        roleSubscription.unsubscribe();
+      }
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
