@@ -184,7 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const isAdmin = userRole === 'admin';
-  const isSuperUser = user?.email === 'darylchibange4@gmail.com'; // Hardcoded superuser
+  const isSuperUser = userRole === 'admin'; // All admins now have superuser access
 
   const value = {
     user,
