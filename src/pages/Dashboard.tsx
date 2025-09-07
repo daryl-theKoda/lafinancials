@@ -15,7 +15,8 @@ import {
   Upload,
   Settings,
   Download,
-  MessageCircle
+  MessageCircle,
+  Home
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { Link } from "react-router-dom";
@@ -244,12 +245,13 @@ const Dashboard = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link to="/" className="text-2xl font-bold text-finance-navy">
-                LAFinServices
-              </Link>
-              <Badge variant="outline" className="text-finance-blue">
-                Dashboard
-              </Badge>
+              <img src="/logo.jpg" alt="LA Financial Services" className="h-10 w-auto" />
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl font-bold text-finance-navy">LAFinServices</span>
+                <Badge variant="outline" className="text-finance-blue">
+                  Dashboard
+                </Badge>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
@@ -262,6 +264,12 @@ const Dashboard = () => {
                   </div>
                 )}
               </div>
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
