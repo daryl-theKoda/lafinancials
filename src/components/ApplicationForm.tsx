@@ -53,6 +53,7 @@ const formSchema = z.object({
   
   // Loan & Collateral
   loanAmount: z.number().min(1, 'Please enter loan amount'),
+  currency: z.string().min(1, 'Please select currency'),
   loanPurpose: z.string().min(5, 'Please describe the loan purpose'),
   collateral1: z.string().optional(),
   collateral2: z.string().optional(),

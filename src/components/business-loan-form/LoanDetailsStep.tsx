@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const LoanDetailsStep = ({ form }: { form: any }) => {
   const collateralItems = [1, 2, 3, 4, 5];
@@ -10,20 +11,30 @@ export const LoanDetailsStep = ({ form }: { form: any }) => {
     <div className="space-y-6">
       <h3 className="text-lg font-medium">Loan Details</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-2">
+          <Label htmlFor="currency">Currency</Label>
+          <Select onValueChange={(value) => form.setValue("currency", value)} defaultValue={form.watch("currency")}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="USD">USD ($)</SelectItem>
+              <SelectItem value="ZiG">ZiG (ZiG)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2 md:col-span-2">
           <Label htmlFor="loanAmount">Amount Required</Label>
-          <div className="relative">
-            <span className="absolute left-3 top-2.5">$</span>
-            <Input
-              id="loanAmount"
-              type="number"
-              min="0"
-              step="0.01"
-              className="pl-7"
-              {...form.register("loanAmount", { valueAsNumber: true })}
-            />
-          </div>
+          <Input
+            id="loanAmount"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            {...form.register("loanAmount", { valueAsNumber: true })}
+          />
         </div>
         
         <div className="space-y-2">

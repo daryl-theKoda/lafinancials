@@ -36,6 +36,7 @@ export const salaryLoanFormSchema = z.object({
 
   // IV. Loan Details
   loanAmount: z.number().min(1, "Loan amount required"),
+  currency: z.string().min(1, "Currency selection required"),
   loanPurpose: z.string().min(2, "Loan purpose required"),
   repaymentPeriod: z.string().min(1, "Repayment period required"),
   repaymentFrequency: z.string().min(1, "Repayment frequency required"),

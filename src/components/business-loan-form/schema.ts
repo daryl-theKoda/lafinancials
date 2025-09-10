@@ -130,6 +130,7 @@ export const businessLoanFormSchema = z.object({
   
   // Loan Details
   loanAmount: z.coerce.number().min(1000, "Minimum loan amount is $1,000"),
+  currency: z.string().min(1, "Currency selection is required"),
   loanTerm: z.coerce.number().min(1, "Loan term must be at least 1 month"),
   repaymentFrequency: z.string().min(1, "Repayment frequency is required"),
   customRepaymentFrequency: z.string().optional(),

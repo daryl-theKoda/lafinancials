@@ -1,18 +1,41 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DollarSign } from "lucide-react";
 
 export function LoanCollateralStep({ form }: { form: any }) {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FormField
+          control={form.control}
+          name="currency"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Currency *</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="USD">USD ($)</SelectItem>
+                  <SelectItem value="ZiG">ZiG (ZiG)</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="loanAmount"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Loan Amount Required (USD) *</FormLabel>
+            <FormItem className="md:col-span-2">
+              <FormLabel>Loan Amount Required *</FormLabel>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <FormControl>
@@ -34,7 +57,7 @@ export function LoanCollateralStep({ form }: { form: any }) {
           control={form.control}
           name="loanPurpose"
           render={({ field }) => (
-            <FormItem className="md:col-span-2">
+            <FormItem className="md:col-span-3">
               <FormLabel>Purpose of Loan *</FormLabel>
               <FormControl>
                 <Textarea
