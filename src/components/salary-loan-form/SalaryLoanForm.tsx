@@ -2,6 +2,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { salaryLoanFormSchema, SalaryLoanFormValues } from "./schema";
 import { PersonalInfoStep } from "./PersonalInfoStep";
 import { EmploymentDetailsStep } from "./EmploymentDetailsStep";
@@ -271,12 +272,14 @@ export default function SalaryLoanForm() {
 
   return (
     <>
-      <button
+      <Button
+        variant="ghost"
         onClick={() => navigate("/")}
-        style={{ marginBottom: 16, padding: '8px 16px', borderRadius: 6, background: '#2563eb', color: 'white', border: 'none', cursor: 'pointer' }}
+        className="mb-6 flex items-center gap-2 text-finance-gray hover:text-finance-blue"
       >
-        ← Back to Dashboard
-      </button>
+        <ArrowLeft className="w-4 h-4" />
+        Back to Home
+      </Button>
       <FormProvider {...form}>
         <form
           className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6"

@@ -57,8 +57,12 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "deepseek/deepseek-r1:free",
+          model: "openai/gpt-3.5-turbo",
           messages: [
+            {
+              role: "system",
+              content: "You are a helpful assistant for LA Financial Services, a licensed microfinance institution in Zimbabwe. Provide information about business loans, personal loans, salary loans, educational loans, and the application process. Be professional, helpful, and specific about LA Financial Services' offerings. Keep responses concise and relevant to microfinance services in Zimbabwe."
+            },
             {
               role: "user",
               content: userMessage
@@ -117,14 +121,14 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
 
   if (isMinimized) {
     return (
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
         <Button
           onClick={onToggleMinimize}
-          className="rounded-full w-14 h-14 bg-gradient-primary shadow-lg hover:shadow-xl transition-shadow"
+          className="rounded-full w-12 h-12 sm:w-14 sm:h-14 bg-gradient-primary shadow-lg hover:shadow-xl transition-shadow"
         >
-          <MessageCircle className="w-6 h-6" />
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
         </Button>
-        <Badge className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+        <Badge className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs">
           !
         </Badge>
       </div>
@@ -132,12 +136,12 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-96 h-[32rem] flex flex-col">
+    <div className="fixed bottom-4 right-4 z-50 w-[calc(100vw-2rem)] sm:w-96 h-[28rem] sm:h-[32rem] max-w-sm sm:max-w-none flex flex-col">
       <Card className="flex-1 flex flex-col shadow-xl border-2 border-finance-blue/20">
-        <CardHeader className="bg-gradient-primary text-white p-3">
-          <CardTitle className="flex items-center justify-between text-sm">
+        <CardHeader className="bg-gradient-primary text-white p-2 sm:p-3">
+          <CardTitle className="flex items-center justify-between text-xs sm:text-sm">
             <div className="flex items-center">
-              <Bot className="w-4 h-4 mr-2" />
+              <Bot className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
               LAFin Assistant
             </div>
             <div className="flex space-x-1">
@@ -147,7 +151,7 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
                 className="h-6 w-6 p-0 text-white hover:bg-white/20"
                 onClick={onToggleMinimize}
               >
-                <Minimize2 className="w-3 h-3" />
+                <Minimize2 className="w-2 h-2 sm:w-3 sm:h-3" />
               </Button>
               <Button
                 variant="ghost"
@@ -155,14 +159,14 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
                 className="h-6 w-6 p-0 text-white hover:bg-white/20"
                 onClick={onClose}
               >
-                <X className="w-3 h-3" />
+                <X className="w-2 h-2 sm:w-3 sm:h-3" />
               </Button>
             </div>
           </CardTitle>
         </CardHeader>
 
         <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-          <ScrollArea className="flex-1 p-3">
+          <ScrollArea className="flex-1 p-2 sm:p-3">
             <div className="space-y-3">
               {messages.map((message) => (
                 <div
@@ -175,20 +179,20 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
                     }`}
                   >
                     <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center ${
                         message.sender === 'user' 
                           ? 'bg-finance-blue text-white' 
                           : 'bg-finance-light text-finance-navy'
                       }`}
                     >
                       {message.sender === 'user' ? (
-                        <User className="w-3 h-3" />
+                        <User className="w-2 h-2 sm:w-3 sm:h-3" />
                       ) : (
-                        <Bot className="w-3 h-3" />
+                        <Bot className="w-2 h-2 sm:w-3 sm:h-3" />
                       )}
                     </div>
                     <div
-                      className={`p-2 rounded-lg text-xs whitespace-pre-line ${
+                      className={`p-1.5 sm:p-2 rounded-lg text-xs whitespace-pre-line ${
                         message.sender === 'user'
                           ? 'bg-finance-blue text-white'
                           : 'bg-finance-light text-finance-navy'
@@ -203,10 +207,10 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
               {isTyping && (
                 <div className="flex justify-start">
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 rounded-full bg-finance-light text-finance-navy flex items-center justify-center">
-                      <Bot className="w-3 h-3" />
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-finance-light text-finance-navy flex items-center justify-center">
+                      <Bot className="w-2 h-2 sm:w-3 sm:h-3" />
                     </div>
-                    <div className="bg-finance-light text-finance-navy p-2 rounded-lg text-xs">
+                    <div className="bg-finance-light text-finance-navy p-1.5 sm:p-2 rounded-lg text-xs">
                       <div className="flex space-x-1">
                         <div className="w-1 h-1 bg-finance-navy rounded-full animate-bounce"></div>
                         <div className="w-1 h-1 bg-finance-navy rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -220,14 +224,14 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
           </ScrollArea>
 
           {/* Quick Replies */}
-          <div className="p-2 border-t">
+          <div className="p-1.5 sm:p-2 border-t">
             <div className="flex flex-wrap gap-1 mb-2">
               {quickReplies.slice(0, 3).map((reply, index) => (
                 <Button
                   key={index}
                   variant="outline"
                   size="sm"
-                  className="text-xs h-6 px-2"
+                  className="text-xs h-5 sm:h-6 px-1.5 sm:px-2"
                   onClick={() => handleQuickReply(reply)}
                 >
                   {reply}
@@ -237,17 +241,17 @@ const ChatBot = ({ isMinimized = false, onToggleMinimize, onClose }: ChatBotProp
           </div>
 
           {/* Input Area */}
-          <div className="p-3 border-t">
+          <div className="p-2 sm:p-3 border-t">
             <div className="flex space-x-2">
               <Input
                 placeholder="Type your message..."
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="text-xs flex-1"
+                className="text-xs flex-1 text-sm"
               />
               <Button size="sm" onClick={sendMessage} className="bg-gradient-primary">
-                <Send className="w-3 h-3" />
+                <Send className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </div>
           </div>

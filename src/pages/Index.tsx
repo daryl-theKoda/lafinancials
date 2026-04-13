@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import About from "@/components/About";
-import Services from "@/components/Services";
-import Values from "@/components/Values";
-import Documentation from "@/components/Documentation";
-import Footer from "@/components/Footer";
-import Partners from "@/components/Partners";
+import LazySection from "@/components/LazySection";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import ChatBot from "@/components/ChatBot";
+
+// Lazy load components that are below the fold
+const About = lazy(() => import("@/components/About"));
+const Services = lazy(() => import("@/components/Services"));
+const Values = lazy(() => import("@/components/Values"));
+const Documentation = lazy(() => import("@/components/Documentation"));
+const Footer = lazy(() => import("@/components/Footer"));
+const Partners = lazy(() => import("@/components/Partners"));
 
 const Index = () => {
   const [showChatBot, setShowChatBot] = useState(false);
@@ -17,12 +21,43 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
       <Hero />
-      <About />
-      <Values />
-      <Partners />
-      <Services />
-      <Documentation />
-      <Footer />
+      
+      {/* Lazy load sections below the fold */}
+      <LazySection>
+        <Suspense fallback={<LoadingSpinner />}>
+          <About />
+        </Suspense>
+      </LazySection>
+      
+      <LazySection>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Values />
+        </Suspense>
+      </LazySection>
+      
+      <LazySection>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Partners />
+        </Suspense>
+      </LazySection>
+      
+      <LazySection>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Services />
+        </Suspense>
+      </LazySection>
+      
+      <LazySection>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Documentation />
+        </Suspense>
+      </LazySection>
+      
+      <LazySection>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Footer />
+        </Suspense>
+      </LazySection>
       
       {/* Floating ChatBot */}
       {!showChatBot && (

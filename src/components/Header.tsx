@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
+import LazyImage from "@/components/LazyImage";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,7 +38,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <a href="/">
-              <img
+              <LazyImage
                 src="/logo.jpg"
                 alt="LA Financial Services Logo"
                 className="h-14 w-auto mr-4 drop-shadow-md"

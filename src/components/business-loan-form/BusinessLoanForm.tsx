@@ -381,7 +381,7 @@ export const BusinessLoanForm = () => {
         onClick={() => navigate("/")}
         style={{ marginBottom: 16, padding: '8px 16px', borderRadius: 6, background: '#2563eb', color: 'white', border: 'none', cursor: 'pointer' }}
       >
-        ← Back to Dashboard
+        ← Back to Home
       </button>
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-2">Business Loan Application</h1>
